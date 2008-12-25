@@ -14,6 +14,8 @@ use Params::Util qw(_ARRAYLIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 
+our $VERSION = '1.000';
+
 =head1 METHODS
 
 =head2 new
@@ -272,5 +274,23 @@ use overload
   '&{}'    => sub { my ($self) = @_; sub { $self->log(@_) } },
   fallback => 1,
 ;
+
+
+=head1 SEE ALSO
+
+L<Log::Dispatch>
+
+L<String::Flogger>
+
+=head1 AUTHOR
+
+Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+
+=head1 COPYRIGHT
+
+Copyright 2008 Ricardo SIGNES.  This program is free software;  you can
+redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
 
 1;
