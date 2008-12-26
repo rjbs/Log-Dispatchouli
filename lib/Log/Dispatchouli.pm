@@ -14,7 +14,7 @@ use Params::Util qw(_ARRAYLIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 
 =head1 METHODS
 
@@ -35,11 +35,11 @@ Valid arguments are:
   facility   - to which syslog facility to send logs; default: none
   fail_fatal - a boolean; if true, failure to log is fatal; default: true
   debug      - a boolean; if true, log_debug method is not a no-op
-               defaults to the truth of the ICG_LOG_DEBUG env var
+               defaults to the truth of the DISPATCHOULI_DEBUG env var
 
-The log path is either F</tmp> or the value of the F<ICG_LOG_PATH> env var.
+The log path is either F</tmp> or the value of the F<DISPATCHOULI_PATH> env var.
 
-If the F<ICG_LOG_NOSYSLOG> env var is true, we don't log to syslog.
+If the F<DISPATCHOULI_NOSYSLOG> env var is true, we don't log to syslog.
 
 =cut
 
@@ -139,7 +139,11 @@ sub new {
 
   $self->{dispatcher} = $log;
   $self->{prefix} = $arg->{prefix} || $arg->{list_name};
-  $self->{debug}  = exists $arg->{debug} ? $arg->{debug} : $ENV{ICG_LOG_DEBUG};
+
+  $self->{debug}  = exists $arg->{debug}
+                  ? $arg->{debug}
+                  : $ENV{DISPATCHOULI_DEBUG};
+
   $self->{fail_fatal} = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
 
   return $self;
