@@ -14,7 +14,7 @@ use Params::Util qw(_ARRAYLIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 =head1 METHODS
 
