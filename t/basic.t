@@ -19,7 +19,9 @@ $logger->log_debug('this will not get logged');
 
 cmp_deeply(
   $logger->events,
-  [ superhashof({ message => re(qr/\Qpoint: {{{"x": 1,\s?"y": 2}}}\E\z/) }) ],
+  [
+    superhashof({ message => re(qr/\Qpoint: {{{"x": 1,\E\s?\Q"y": 2}}}\E\z/) })
+  ],
   "events with struts logged to self",
 );
 
