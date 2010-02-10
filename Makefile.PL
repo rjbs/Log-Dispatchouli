@@ -12,6 +12,7 @@ requires('Params::Util');
 requires('Scalar::Util');
 requires('String::Flogger');
 requires('Sys::Syslog' => 0.16); # native socket type
+requires('Try::Tiny');
 
 auto_manifest;
 

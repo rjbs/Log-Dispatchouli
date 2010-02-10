@@ -1,5 +1,9 @@
 Revision history for Log-Dispatchouli
 
+1.004   2010-02-10
+        allow multiple arguments to ->log and friends
+        allow user to disable logging of pid
+
 1.003   2009-01-15
         relax a test that was complaining for no good reason
 
