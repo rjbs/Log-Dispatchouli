@@ -198,10 +198,13 @@ sub _log_at {
       message => $message,
     );
   } catch {
+    $message = '(no message could be logged)' unless defined $message;
     die $_ if $self->{fail_fatal};
   };
 
   die $message if $arg->{fatal};
+
+  return;
 }
 
 sub log { shift()->_log_at({ level => 'info' }, @_); }
