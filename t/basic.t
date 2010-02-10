@@ -53,10 +53,10 @@ use Test::Deep;
 }
 
 {
-  my $logger =Log::Dispatchouli->new({
-    ident     => 'foo',
+  my $logger = Log::Dispatchouli->new({
+    ident   => 'foo',
     to_self => 1,
-    log_pid   => 0,
+    log_pid => 0,
   });
 
   $logger->log([ '%s %s', '[foo]', [qw(foo)] ], "..");

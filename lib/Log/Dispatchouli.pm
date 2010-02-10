@@ -34,6 +34,7 @@ Valid arguments are:
   to_stdout  - log to STDOUT; default: false
   to_stderr  - log to STDERR; default: false
   facility   - to which syslog facility to send logs; default: none
+  log_pid    - if true, prefix all log entries with the pid; default: true
   fail_fatal - a boolean; if true, failure to log is fatal; default: true
   debug      - a boolean; if true, log_debug method is not a no-op
                defaults to the truth of the DISPATCHOULI_DEBUG env var
@@ -175,10 +176,15 @@ sub new_tester {
 
 =head2 log
 
-  $logger->log($message);
+  $logger->log(@messages);
 
-This method uses L<String::Flogger|String::Flogger> on the input, then logs the
-result.
+  $logger->log(\%arg, @messages);
+
+This method uses L<String::Flogger> on the input, then logs the result.  Each
+message is flogged individually, then joined with spaces.
+
+If the first argument is a hashref, it will be used as extra arguments to
+logging.  At present, all entries in the hashref are ignored.
 
 =cut
 
