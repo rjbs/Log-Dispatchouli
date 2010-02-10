@@ -10,9 +10,10 @@ Log::Dispatchouli - a simple wrapper around Log::Dispatch
 
 use Carp ();
 use Log::Dispatch;
-use Params::Util qw(_ARRAYLIKE);
+use Params::Util qw(_ARRAYLIKE _HASHLIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
+use Try::Tiny 0.04;
 
 our $VERSION = '1.003';
 
@@ -181,35 +182,29 @@ result.
 
 =cut
 
+sub _join { shift; join q{ }, @{ $_[0] } }
+
 sub _log_at {
-  my ($self, $level, $message, $arg) = @_;
+  my ($self, $arg, @rest) = @_;
+  shift @rest if _HASHLIKE($rest[0]); # for future expansion
 
-  {
-    local $@;
-    my $ok = eval {
-      $message = String::Flogger->flog($message);
+  my $message;
+  try {
+    my @flogged = map {; String::Flogger->flog($_) } @rest;
+    $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
-      $self->dispatcher->log(
-        level   => $level,
-        message => $message,
-      );
+    $self->dispatcher->log(
+      level   => $arg->{level},
+      message => $message,
+    );
+  } catch {
+    die $_ if $self->{fail_fatal};
+  };
 
-      1;
-    };
-
-    die if ! $ok and $self->{fail_fatal};
-  }
-
-  $message = "log_fatal && ! fail_fatal; failed to log"
-    unless defined $message;
-
-  die $message if $arg and $arg->{fatal};
+  die $message if $arg->{fatal};
 }
 
-sub log {
-  my ($self, $message) = @_;
-  $self->_log_at(info => $message);
-}
+sub log { shift()->_log_at({ level => 'info' }, @_); }
 
 =head2 log_fatal
 
@@ -218,10 +213,7 @@ exception after logging.
 
 =cut
 
-sub log_fatal {
-  my ($self, $message) = @_;
-  $self->_log_at(info => $message, { fatal => 1 });
-}
+sub log_fatal { shift()->_log_at({ level => 'info', fatal => 1 }, @_); }
 
 =head2 log_debug
 
@@ -231,9 +223,8 @@ the SvcLogger object has its debug property set to true.
 =cut
 
 sub log_debug {
-  my ($self, $message) = @_;
-  return unless $self->debug;
-  $self->_log_at(debug => $message);
+  return unless $_[0]->debug;
+  shift()->_log_at({ level => 'debug' }, @_);
 }
 
 =head2 debug
