@@ -49,6 +49,8 @@ sub new {
   my $ident = $arg->{ident}
     or Carp::croak "no ident specified when using $class";
 
+  my $pid_prefix = exists $arg->{log_pid} ? $arg->{log_pid} : 1;
+
   my $self = bless {} => $class;
 
   # We make a weak copy so that the object can contain a coderef that
@@ -61,7 +63,7 @@ sub new {
     callbacks => sub {
       my $prefix = $copy->get_prefix || '';
       length($prefix) && ($prefix = "$prefix: ");
-      return "[$$] $prefix" . {@_}->{message}
+      return( ($pid_prefix ? "[$$] " : '') . $prefix . {@_}->{message})
     },
   );
 
