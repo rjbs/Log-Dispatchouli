@@ -1,5 +1,8 @@
 Revision history for Log-Dispatchouli
 
+1.005   2010-02-12
+        make Makefile.PL prereq match actual required versions
+
 1.004   2010-02-10
         allow multiple arguments to ->log and friends
         allow user to disable logging of pid
