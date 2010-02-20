@@ -186,6 +186,10 @@ message is flogged individually, then joined with spaces.
 If the first argument is a hashref, it will be used as extra arguments to
 logging.  At present, all entries in the hashref are ignored.
 
+This method can also be called as C<log_info>, to match other popular logging
+interfaces.  B<If you want to override this method, you must override C<log>
+and not C<log_info>>.
+
 =cut
 
 sub _join { shift; join q{ }, @{ $_[0] } }
@@ -213,7 +217,8 @@ sub _log_at {
   return;
 }
 
-sub log { shift()->_log_at({ level => 'info' }, @_); }
+sub log      { shift()->_log_at({ level => 'info' }, @_); }
+sub log_info { shift()->log(@_); }
 
 =head2 log_fatal
 
@@ -222,7 +227,7 @@ exception after logging.
 
 =cut
 
-sub log_fatal { shift()->_log_at({ level => 'info', fatal => 1 }, @_); }
+sub log_fatal { shift()->_log_at({ level => 'error', fatal => 1 }, @_); }
 
 =head2 log_debug
 
@@ -241,6 +246,9 @@ sub log_debug {
 This gets or sets the SvcLogger's debug property, which affects the behavior of
 C<log_debug>.
 
+C<is_debug> also exists as a read-only accessor.  Much less usefully,
+C<is_info> and C<is_fatal> exist, both of which always return true.
+
 =cut
 
 sub debug {
@@ -248,6 +256,11 @@ sub debug {
   $self->{debug} = $_[0] if @_;
   return $self->{debug};
 }
+
+sub is_debug { return $_[0]->{debug} }
+
+sub is_info  { 1 }
+sub is_fatal { 1 }
 
 =head2 dispatcher
 
