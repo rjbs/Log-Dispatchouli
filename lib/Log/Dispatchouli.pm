@@ -191,7 +191,7 @@ sub _log_at {
   shift @rest if _HASHLIKE($rest[0]); # for future expansion
 
   if (defined (my $prefix = $self->get_prefix)) {
-    unshift @rest, "$prefix: ";
+    unshift @rest, "$prefix:";
   }
 
   my $message;

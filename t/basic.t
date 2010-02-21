@@ -66,6 +66,19 @@ use Test::Deep;
     '[foo] {{["foo"]}} ..',
     "multi-arg logging",
   );
+
+  $logger->set_prefix('xyzzy');
+  $logger->log('foo');
+  $logger->unset_prefix;
+  $logger->log('bar');
+
+  is($logger->events->[1]{message}, 'xyzzy: foo', 'set a prefix');
+  is($logger->events->[2]{message}, 'bar',        'unset prefix');
+}
+
+{
+  my $logger = eval { Log::Dispatchouli->new; };
+  like($@, qr/no ident specified/, "can't make a logger without ident");
 }
 
 done_testing;
