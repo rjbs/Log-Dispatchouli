@@ -55,17 +55,9 @@ sub new {
 
   my $self = bless {} => $class;
 
-  # We make a weak copy so that the object can contain a coderef that
-  # references the object without interfering with garbage collection. -- rjbs,
-  # 2007-08-08
-  my $copy = $self;
-  weaken $copy;
-
   my $log = Log::Dispatch->new(
     callbacks => sub {
-      my $prefix = $copy->get_prefix || '';
-      length($prefix) && ($prefix = "$prefix: ");
-      return( ($pid_prefix ? "[$$] " : '') . $prefix . {@_}->{message})
+      return( ($pid_prefix ? "[$$] " : '') . {@_}->{message})
     },
   );
 
@@ -198,6 +190,10 @@ sub _log_at {
   my ($self, $arg, @rest) = @_;
   shift @rest if _HASHLIKE($rest[0]); # for future expansion
 
+  if (defined (my $prefix = $self->get_prefix)) {
+    unshift @rest, "$prefix: ";
+  }
+
   my $message;
   try {
     my @flogged = map {; String::Flogger->flog($_) } @rest;
@@ -271,7 +267,11 @@ you're looking for.  Move along.
 
 sub dispatcher   { $_[0]->{dispatcher} }
 
-sub get_prefix   { $_[0]->{prefix} }
+sub get_prefix   {
+  return $_[0]->{prefix} if defined $_[0]->{prefix};
+  return;
+}
+
 sub set_prefix   { $_[0]->{prefix} = $_[1] }
 sub unset_prefix { undef $_[0]->{prefix} }
 
