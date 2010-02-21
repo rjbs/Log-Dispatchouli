@@ -1,5 +1,10 @@
 Revision history for Log-Dispatchouli
 
+1.006   2010-02-21
+        add is_debug, is_info, is_fatal
+        log_fatal logs as 'error' level
+        change the way the undocumented "prefix" system works
+
 1.005   2010-02-12
         make Makefile.PL prereq match actual required versions
 
