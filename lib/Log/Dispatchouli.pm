@@ -221,13 +221,14 @@ sub info { shift()->log(@_); }
 This behaves like the C<log> method, but will throw the logged string as an
 exception after logging.
 
-This method can also be called as C<info>, to match other popular logging
-interfaces.  B<If you want to override this method, you must override C<log>
-and not C<info>>.
+This method can also be called as C<fatal>, to match other popular logging
+interfaces.  B<If you want to override this method, you must override
+C<log_fatal> and not C<fatal>>.
 
 =cut
 
 sub log_fatal { shift()->_log_at({ level => 'error', fatal => 1 }, @_); }
+sub fatal     { shift()->log_fatal(@_); }
 
 =head2 log_debug
 
