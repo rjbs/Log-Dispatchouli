@@ -178,9 +178,9 @@ message is flogged individually, then joined with spaces.
 If the first argument is a hashref, it will be used as extra arguments to
 logging.  At present, all entries in the hashref are ignored.
 
-This method can also be called as C<log_info>, to match other popular logging
+This method can also be called as C<info>, to match other popular logging
 interfaces.  B<If you want to override this method, you must override C<log>
-and not C<log_info>>.
+and not C<info>>.
 
 =cut
 
@@ -213,13 +213,17 @@ sub _log_at {
   return;
 }
 
-sub log      { shift()->_log_at({ level => 'info' }, @_); }
-sub log_info { shift()->log(@_); }
+sub log  { shift()->_log_at({ level => 'info' }, @_); }
+sub info { shift()->log(@_); }
 
 =head2 log_fatal
 
 This behaves like the C<log> method, but will throw the logged string as an
 exception after logging.
+
+This method can also be called as C<info>, to match other popular logging
+interfaces.  B<If you want to override this method, you must override C<log>
+and not C<info>>.
 
 =cut
 
@@ -230,28 +234,38 @@ sub log_fatal { shift()->_log_at({ level => 'error', fatal => 1 }, @_); }
 This behaves like the C<log> method, but will only log (at the debug level) if
 the SvcLogger object has its debug property set to true.
 
+This method can also be called as C<debug>, to match other popular logging
+interfaces.  B<If you want to override this method, you must override
+C<log_debug> and not C<debug>>.
+
 =cut
 
 sub log_debug {
-  return unless $_[0]->debug;
+  return unless $_[0]->is_debug;
   shift()->_log_at({ level => 'debug' }, @_);
 }
 
-=head2 debug
+sub debug { shift()->log_debug(@_); }
 
-This gets or sets the SvcLogger's debug property, which affects the behavior of
+=head2 set_debug
+
+  $logger->set_debug($bool);
+
+This sets the SvcLogger's debug property, which affects the behavior of
 C<log_debug>.
+
+=cut
+
+sub set_debug {
+  return($_[0]->{debug} = ! ! $_[1]);
+}
+
+=head2 is_debug
 
 C<is_debug> also exists as a read-only accessor.  Much less usefully,
 C<is_info> and C<is_fatal> exist, both of which always return true.
 
 =cut
-
-sub debug {
-  my $self = shift;
-  $self->{debug} = $_[0] if @_;
-  return $self->{debug};
-}
 
 sub is_debug { return $_[0]->{debug} }
 
