@@ -15,7 +15,7 @@ use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
 
-our $VERSION = '1.006';
+our $VERSION = '1.007';
 
 =head1 METHODS
 

@@ -1,5 +1,11 @@
 Revision history for Log-Dispatchouli
 
+1.007   2010-02-22
+        ** THIS BREAKS BACKCOMPAT IN A TINY WAY **
+        ->debug now means ->log_debug
+        ->is_debug and ->set_debug replace the old ->debug
+        ->log_info is replaced by ->info
+
 1.006   2010-02-21
         add is_debug, is_info, is_fatal
         log_fatal logs as 'error' level
