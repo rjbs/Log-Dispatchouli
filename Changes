@@ -1,5 +1,8 @@
 Revision history for Log-Dispatchouli
 
+1.008   2010-02-22
+        ->fatal now redispatches to ->log_fatal
+
 1.007   2010-02-22
         ** THIS BREAKS BACKCOMPAT IN A TINY WAY **
         ->debug now means ->log_debug
