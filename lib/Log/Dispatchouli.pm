@@ -14,8 +14,7 @@ use Try::Tiny 0.04;
 
   my $logger = Log::Dispatchouli->new(\%arg);
 
-This returns a new logger, which can then be called like a coderef to log
-stuff.  You know.  Stuff.  Things, too, we'll log those.
+This returns a new logger, a Log::Dispatchouli object.
 
 Valid arguments are:
 
