@@ -14,7 +14,7 @@ use Try::Tiny 0.04;
 
   my $logger = Log::Dispatchouli->new(\%arg);
 
-This returns a new SvcLogger, which can then be called like a coderef to log
+This returns a new logger, which can then be called like a coderef to log
 stuff.  You know.  Stuff.  Things, too, we'll log those.
 
 Valid arguments are:
@@ -224,7 +224,7 @@ sub fatal     { shift()->log_fatal(@_); }
 =method log_debug
 
 This behaves like the C<log> method, but will only log (at the debug level) if
-the SvcLogger object has its debug property set to true.
+the logger object has its debug property set to true.
 
 This method can also be called as C<debug>, to match other popular logging
 interfaces.  B<If you want to override this method, you must override
@@ -243,7 +243,7 @@ sub debug { shift()->log_debug(@_); }
 
   $logger->set_debug($bool);
 
-This sets the SvcLogger's debug property, which affects the behavior of
+This sets the logger's debug property, which affects the behavior of
 C<log_debug>.
 
 =cut
