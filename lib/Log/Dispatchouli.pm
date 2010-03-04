@@ -1,12 +1,7 @@
 use strict;
 use warnings;
 package Log::Dispatchouli;
-
-=head1 NAME
-
-Log::Dispatchouli - a simple wrapper around Log::Dispatch
-
-=cut
+# ABSTRACT: a simple wrapper around Log::Dispatch
 
 use Carp ();
 use Log::Dispatch;
@@ -15,11 +10,7 @@ use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
 
-our $VERSION = '1.008';
-
-=head1 METHODS
-
-=head2 new
+=method new
 
   my $logger = Log::Dispatchouli->new(\%arg);
 
@@ -145,7 +136,7 @@ sub new {
   return $self;
 }
 
-=head2 new_tester
+=method new_tester
 
 This returns a new logger that doesn't log.  It's useful in testing.  If no
 C<ident> arg is provided, one will be generated.
@@ -166,7 +157,7 @@ sub new_tester {
   });
 }
 
-=head2 log
+=method log
 
   $logger->log(@messages);
 
@@ -216,7 +207,7 @@ sub _log_at {
 sub log  { shift()->_log_at({ level => 'info' }, @_); }
 sub info { shift()->log(@_); }
 
-=head2 log_fatal
+=method log_fatal
 
 This behaves like the C<log> method, but will throw the logged string as an
 exception after logging.
@@ -230,7 +221,7 @@ C<log_fatal> and not C<fatal>>.
 sub log_fatal { shift()->_log_at({ level => 'error', fatal => 1 }, @_); }
 sub fatal     { shift()->log_fatal(@_); }
 
-=head2 log_debug
+=method log_debug
 
 This behaves like the C<log> method, but will only log (at the debug level) if
 the SvcLogger object has its debug property set to true.
@@ -248,7 +239,7 @@ sub log_debug {
 
 sub debug { shift()->log_debug(@_); }
 
-=head2 set_debug
+=method set_debug
 
   $logger->set_debug($bool);
 
@@ -261,7 +252,7 @@ sub set_debug {
   return($_[0]->{debug} = ! ! $_[1]);
 }
 
-=head2 is_debug
+=method is_debug
 
 C<is_debug> also exists as a read-only accessor.  Much less usefully,
 C<is_info> and C<is_fatal> exist, both of which always return true.
@@ -273,7 +264,7 @@ sub is_debug { return $_[0]->{debug} }
 sub is_info  { 1 }
 sub is_fatal { 1 }
 
-=head2 dispatcher
+=method dispatcher
 
 This returns the underlying Log::Dispatch object.  This is not the method
 you're looking for.  Move along.
@@ -290,7 +281,7 @@ sub get_prefix   {
 sub set_prefix   { $_[0]->{prefix} = $_[1] }
 sub unset_prefix { undef $_[0]->{prefix} }
 
-=head2 events
+=method events
 
 This method returns the arrayref of events logged to an array in memory (in the
 logger).  If the logger is not logging C<to_self> this raises an exception.
@@ -309,21 +300,11 @@ use overload
   fallback => 1,
 ;
 
-
 =head1 SEE ALSO
 
 L<Log::Dispatch>
 
 L<String::Flogger>
-
-=head1 AUTHOR
-
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
-
-=head1 COPYRIGHT
-
-Copyright 2008 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
 
