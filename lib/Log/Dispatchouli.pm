@@ -10,6 +10,40 @@ use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
 
+=head1 SYNOPSIS
+
+  my $logger = Log::Dispatchouli->new({
+    ident     => 'stuff-purger',
+    facility  => 'daemon',
+    to_stdout => $opt->{print},
+    debug     => $opt->{verbose}
+  })
+
+  $logger->log([ "There are %s items left to purge...", $stuff_left ]);
+
+  $logger->log_debug("this is extra often-ignored debugging log");
+
+  $logger->log_fatal("Now we will die!!");
+
+=head1 DESCRIPTION
+
+Log::Dispatchouli is a thin layer above L<Log::Dispatch> and meant to make it
+dead simple to add logging to a program without having to think much about
+categories, facilities, levels, or things like that.  It is meant to make
+logging just configurable enough that you can find the logs you want and just
+easy enough that you will actually log things.
+
+Log::Dispatchouli can log to syslog (if you specify a facility), standard error
+or standard output, to a file, or to an array in memory.  That last one is
+mostly useful for testing.
+
+In addition to providing as simple a way to get a handle for logging
+operations, Log::Dispatchouli uses L<String::Flogger> to process the things to
+be logged, meaning you can easily log data structures.  Basically: strings are
+logged as is, arrayrefs are taken as (sprintf format, args), and subroutines
+are called only if needed.  For more information read the L<String::Flogger>
+docs.
+
 =method new
 
   my $logger = Log::Dispatchouli->new(\%arg);
