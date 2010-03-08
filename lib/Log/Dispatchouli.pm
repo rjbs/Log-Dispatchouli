@@ -329,6 +329,21 @@ sub events {
   return $_[0]->{events};
 }
 
+=method clear_events
+
+This method empties the current sequence of events logged into an array in
+memory.  If the logger is not logging C<to_self> this raises an exception.
+
+=cut
+
+sub clear_events {
+  Carp::confess "->events called on a logger not logging to self"
+    unless $_[0]->{events};
+
+  @{ $_[0]->{events} } = ();
+  return;
+}
+
 use overload
   '&{}'    => sub { my ($self) = @_; sub { $self->log(@_) } },
   fallback => 1,

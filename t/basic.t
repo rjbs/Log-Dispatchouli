@@ -59,6 +59,33 @@ use Test::Deep;
     log_pid => 0,
   });
 
+  $logger->log('foo');
+  cmp_deeply($logger->events, [ superhashof({ message =>'foo' }) ], 'log foo');
+
+  $logger->clear_events;
+  cmp_deeply($logger->events, [ ], 'log empty after clear');
+
+  $logger->log('bar');
+  cmp_deeply($logger->events, [ superhashof({ message =>'bar' }) ], 'log bar');
+
+  $logger->log('foo');
+  cmp_deeply(
+    $logger->events,
+    [
+      superhashof({ message =>'bar' }),
+      superhashof({ message =>'foo' }),
+    ],
+    'log keeps accumulating',
+  );
+}
+
+{
+  my $logger = Log::Dispatchouli->new({
+    ident   => 'foo',
+    to_self => 1,
+    log_pid => 0,
+  });
+
   $logger->log([ '%s %s', '[foo]', [qw(foo)] ], "..");
 
   is(
