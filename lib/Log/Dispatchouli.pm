@@ -171,8 +171,8 @@ sub new {
 
 =method new_tester
 
-This returns a new logger that doesn't log.  It's useful in testing.  If no
-C<ident> arg is provided, one will be generated.
+This returns a new logger that logs only C<to_self>.  It's useful in testing.
+If no C<ident> arg is provided, one will be generated.
 
 =cut
 
@@ -186,6 +186,7 @@ sub new_tester {
     to_stderr => 0,
     to_stdout => 0,
     to_file   => 0,
+    to_self   => 1,
     facility  => undef,
   });
 }
