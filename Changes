@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.100660  2010-03-07 22:00:58 America/New_York
+          add clear_events method
+          loggers made with new_tester log to_self
+
 1.100630  2010-03-04 18:41:13 America/New_York
           some more docs
           switch to Dist::Zilla for dist maintenance
