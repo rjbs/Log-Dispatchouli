@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          rewrite all log_ methods in terms of ->log
+          ->log now includes the code formerly in the internal ->_log_at
+          add a new per-message prefix system
+          old-style prefix (to be removed) now handle multi-line messages
 
 1.100670  2010-03-08 19:15:30 America/New_York
           make env vars in code match env vars in docs

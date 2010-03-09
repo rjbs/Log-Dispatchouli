@@ -108,4 +108,57 @@ use Test::Deep;
   like($@, qr/no ident specified/, "can't make a logger without ident");
 }
 
+{
+  my $logger = Log::Dispatchouli->new({
+    ident   => 'foo',
+    to_self => 1,
+    log_pid => 0,
+  });
+
+  $logger->log({ prefix => '[ALERT] ' }, "foo\nbar\nbaz");
+
+  my $want_0 = <<'END_LOG';
+[ALERT] foo
+[ALERT] bar
+[ALERT] baz
+END_LOG
+
+  chomp $want_0;
+
+  $logger->log(
+    {
+      prefix => sub {
+        my $m = shift;
+        my @lines = split /\n/, $m;
+        $lines[0] = "<<< $lines[0]";
+        $lines[1] = "||| $lines[1]";
+        $lines[2] = ">>> $lines[2]";
+
+        return join "\n", @lines;
+      },
+    },
+    "foo\nbar\nbaz",
+  );
+
+  my $want_1 = <<'END_LOG';
+<<< foo
+||| bar
+>>> baz
+END_LOG
+
+  chomp $want_1;
+
+  is(
+    $logger->events->[0]{message},
+    $want_0,
+    "multi-line and prefix (string)",
+  );
+
+  is(
+    $logger->events->[1]{message},
+    $want_1,
+    "multi-line and prefix (code)",
+  );
+}
+
 done_testing;

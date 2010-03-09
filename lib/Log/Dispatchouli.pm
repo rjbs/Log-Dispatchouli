@@ -5,7 +5,7 @@ package Log::Dispatchouli;
 
 use Carp ();
 use Log::Dispatch;
-use Params::Util qw(_ARRAYLIKE _HASHLIKE);
+use Params::Util qw(_ARRAYLIKE _HASHLIKE _CODELIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
@@ -211,21 +211,34 @@ and not C<info>>.
 
 sub _join { shift; join q{ }, @{ $_[0] } }
 
-sub _log_at {
-  my ($self, $arg, @rest) = @_;
-  shift @rest if _HASHLIKE($rest[0]); # for future expansion
-
-  if (defined (my $prefix = $self->get_prefix)) {
-    unshift @rest, "$prefix:";
-  }
+sub log {
+  my ($self, @rest) = @_;
+  my $arg;
+  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
+  $arg ||= {};
 
   my $message;
   try {
     my @flogged = map {; String::Flogger->flog($_) } @rest;
     $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
+    my $prefix = $arg->{prefix};
+
+    # XXX: ELIMINATE THIS -- rjbs, 2010-03-08
+    if (! defined $prefix and my $obs_prefix = $self->get_prefix) {
+      $prefix = "$obs_prefix: ";
+    }
+
+    if (defined $prefix) {
+      if (_CODELIKE( $prefix )) {
+        $message = $prefix->($message);
+      } else {
+        $message =~ s/^/$prefix/gm;
+      }
+    }
+
     $self->dispatcher->log(
-      level   => $arg->{level},
+      level   => $arg->{level} || 'info',
       message => $message,
     );
   } catch {
@@ -238,7 +251,6 @@ sub _log_at {
   return;
 }
 
-sub log  { shift()->_log_at({ level => 'info' }, @_); }
 sub info { shift()->log(@_); }
 
 =method log_fatal
@@ -252,7 +264,16 @@ C<log_fatal> and not C<fatal>>.
 
 =cut
 
-sub log_fatal { shift()->_log_at({ level => 'error', fatal => 1 }, @_); }
+sub log_fatal {
+  my ($self, @rest) = @_;
+  my $arg;
+  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
+  local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
+  local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
+
+  $self->log($arg, @rest);
+}
+
 sub fatal     { shift()->log_fatal(@_); }
 
 =method log_debug
@@ -267,8 +288,15 @@ C<log_debug> and not C<debug>>.
 =cut
 
 sub log_debug {
-  return unless $_[0]->is_debug;
-  shift()->_log_at({ level => 'debug' }, @_);
+  my ($self, @rest) = @_;
+
+  return unless $self->is_debug;
+
+  my $arg;
+  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
+  local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'debug';
+
+  $self->log($arg, @rest);
 }
 
 sub debug { shift()->log_debug(@_); }
