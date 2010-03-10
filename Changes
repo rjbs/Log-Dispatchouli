@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.100691  2010-03-10 17:10:53 America/New_York
           just like 1.100690, but passes its own tests!
 
 1.100690  2010-03-10 14:24:59 America/New_York
