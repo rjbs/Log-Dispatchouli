@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.100680  2010-03-09 22:47:23 America/New_York
           rewrite all log_ methods in terms of ->log
           ->log now includes the code formerly in the internal ->_log_at
           add a new per-message prefix system
