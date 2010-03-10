@@ -94,7 +94,7 @@ use Test::Deep;
     "multi-arg logging",
   );
 
-  $logger->set_prefix('xyzzy');
+  $logger->set_prefix('xyzzy: ');
   $logger->log('foo');
   $logger->unset_prefix;
   $logger->log('bar');
