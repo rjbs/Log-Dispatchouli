@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.100690  2010-03-10 14:24:59 America/New_York
           remove obsolete "list_name" alias to prefix
           object-level prefix no longer automatically ends in ": "
 
