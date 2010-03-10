@@ -214,8 +214,7 @@ sub _join { shift; join q{ }, @{ $_[0] } }
 sub log {
   my ($self, @rest) = @_;
   my $arg;
-  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
-  $arg ||= {};
+  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
 
   my $message;
   try {
@@ -267,7 +266,7 @@ C<log_fatal> and not C<fatal>>.
 sub log_fatal {
   my ($self, @rest) = @_;
   my $arg;
-  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
+  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
   local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
 
@@ -293,7 +292,7 @@ sub log_debug {
   return unless $self->is_debug;
 
   my $arg;
-  $arg = shift @rest if _HASHLIKE($rest[0]); # for future expansion
+  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'debug';
 
   $self->log($arg, @rest);
