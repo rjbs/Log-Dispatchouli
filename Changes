@@ -6,6 +6,8 @@ Revision history for {{$dist->name}}
           add a new per-message prefix system
           old-style prefix (to be removed) now handle multi-line messages
 
+          * new prefix system is not yet documented, pending experimentation
+
 1.100670  2010-03-08 19:15:30 America/New_York
           make env vars in code match env vars in docs
 
