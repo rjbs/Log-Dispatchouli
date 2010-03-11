@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          get_prefix now always returns a scalar (undef, not ())
+
+          alter how prefix prepending works; should allow wrappers to add
+          prefixes as they pass up the chain
 
 1.100691  2010-03-10 17:10:53 America/New_York
           just like 1.100690, but passes its own tests!

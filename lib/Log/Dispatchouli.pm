@@ -211,24 +211,34 @@ and not C<info>>.
 
 sub _join { shift; join q{ }, @{ $_[0] } }
 
+sub prepend_prefix_to_log_args {
+  my $self = shift;
+  my ( $prefix, $rest) = @_;
+
+  my $arg = _HASHLIKE($rest->[0]) ? { %{shift(@$rest)} } : {};
+
+  $arg->{prefix} = [ grep {defined} ($prefix, $arg->{prefix}) ];
+
+  return ($arg, $rest);
+}
+
 sub log {
-  my ($self, @rest) = @_;
-  my $arg;
-  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
+  my $self = shift;
+
+  my ($arg, $rest) = $self->prepend_prefix_to_log_args($self->get_prefix, \@_);
 
   my $message;
   try {
-    my @flogged = map {; String::Flogger->flog($_) } @rest;
+    my @flogged = map {; String::Flogger->flog($_) } @$rest;
     $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
     my $prefix = $arg->{prefix};
-    $prefix = $self->get_prefix if ! defined $prefix;
 
-    if (defined $prefix) {
-      if (_CODELIKE( $prefix )) {
-        $message = $prefix->($message);
+    for (@$prefix) {
+      if (_CODELIKE( $_ )) {
+        $message = $_->($message);
       } else {
-        $message =~ s/^/$prefix/gm;
+        $message =~ s/^/$_/gm;
       }
     }
 
@@ -331,8 +341,7 @@ you're looking for.  Move along.
 sub dispatcher   { $_[0]->{dispatcher} }
 
 sub get_prefix   {
-  return $_[0]->{prefix} if defined $_[0]->{prefix};
-  return;
+  return $_[0]->{prefix};
 }
 
 sub set_prefix   { $_[0]->{prefix} = $_[1] }
