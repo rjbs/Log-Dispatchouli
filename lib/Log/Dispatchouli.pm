@@ -5,7 +5,7 @@ package Log::Dispatchouli;
 
 use Carp ();
 use Log::Dispatch;
-use Params::Util qw(_ARRAYLIKE _HASHLIKE _CODELIKE);
+use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
@@ -213,11 +213,14 @@ sub _join { shift; join q{ }, @{ $_[0] } }
 
 sub prepend_prefix_to_log_args {
   my $self = shift;
-  my ( $prefix, $rest) = @_;
+  my ($new_prefix, $rest) = @_;
 
-  my $arg = _HASHLIKE($rest->[0]) ? { %{shift(@$rest)} } : {};
+  my $arg = _HASH0($rest->[0]) ? { %{shift(@$rest)} } : {};
 
-  $arg->{prefix} = [ grep {defined} ($prefix, $arg->{prefix}) ];
+  my $prefix = $arg->{prefix};
+  $arg->{prefix} = [
+    grep {defined} $new_prefix, (_ARRAY0($prefix) ? @$prefix : $prefix)
+  ];
 
   return ($arg, $rest);
 }
@@ -272,7 +275,7 @@ C<log_fatal> and not C<fatal>>.
 sub log_fatal {
   my ($self, @rest) = @_;
   my $arg;
-  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
+  $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
   local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
 
@@ -298,7 +301,7 @@ sub log_debug {
   return unless $self->is_debug;
 
   my $arg;
-  $arg = _HASHLIKE($rest[0]) ? shift(@rest) : {}; # for future expansion
+  $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'debug';
 
   $self->log($arg, @rest);
