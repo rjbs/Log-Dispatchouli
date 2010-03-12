@@ -12,7 +12,7 @@ sub _new {
     parent => $arg->{parent},
     logger => $arg->{logger},
     debug  => $arg->{debug},
-    hard_prefix => $arg->{prefix},
+    proxy_prefix => $arg->{proxy_prefix},
   };
 
   bless $guts => $class;
@@ -26,7 +26,7 @@ sub proxy  {
     parent => $self,
     logger => $self->logger,
     debug  => $arg->{debug},
-    prefix => $arg->{prefix},
+    proxy_prefix => $arg->{proxy_prefix},
   });
 }
 
@@ -45,7 +45,7 @@ sub _get_all_prefix {
   my ($self, $arg) = @_;
 
   return [
-    $self->{hard_prefix},
+    $self->{proxy_prefix},
     $self->get_prefix,
     _ARRAY0($arg->{prefix}) ? @{ $arg->{prefix} } : $arg->{prefix}
   ];

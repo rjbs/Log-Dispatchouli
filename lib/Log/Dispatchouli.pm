@@ -394,7 +394,7 @@ sub proxy {
     parent => $self,
     logger => $self,
     debug  => $arg->{debug},
-    prefix => $arg->{prefix},
+    proxy_prefix => $arg->{proxy_prefix},
   });
 }
 

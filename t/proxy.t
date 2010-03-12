@@ -31,7 +31,7 @@ are_events("simple log with prefix", [
 ]);
 
 my $proxy = $logger->proxy({
-  prefix => 'B: ',
+  proxy_prefix => 'B: ',
 });
 
 $proxy->log("3");
@@ -62,7 +62,7 @@ are_events("remove the logger's parent's prefix", [
 $logger->set_prefix('A: ');
 
 my $proxprox = $proxy->proxy({
-  prefix => 'E: ',
+  proxy_prefix => 'E: ',
 });
 
 $proxprox->log("6");
