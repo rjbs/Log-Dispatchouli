@@ -161,8 +161,8 @@ sub new {
   $self->{prefix} = $arg->{prefix};
 
   $self->{debug}  = exists $arg->{debug}
-                  ? $arg->{debug}
-                  : $ENV{DISPATCHOULI_DEBUG};
+                  ? ($arg->{debug} ? 1 : 0)
+                  : ($ENV{DISPATCHOULI_DEBUG} ? 1 : 0);
 
   $self->{fail_fatal} = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
 
@@ -319,7 +319,7 @@ C<log_debug>.
 =cut
 
 sub set_debug {
-  return($_[0]->{debug} = ! ! $_[1]);
+  return($_[0]->{debug} = $_[1] ? 1 : 0);
 }
 
 =method is_debug
