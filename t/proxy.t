@@ -49,7 +49,7 @@ are_events("log with proxy with prefix", [
   'A: B: C: D: 5',
 ]);
 
-$logger->unset_prefix;
+$logger->clear_prefix;
 
 $proxy->log("4");
 $proxy->log({ prefix => 'D: ' }, "5");

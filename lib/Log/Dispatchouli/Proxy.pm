@@ -5,6 +5,27 @@ package Log::Dispatchouli::Proxy;
 
 use Params::Util qw(_ARRAY0 _HASH0);
 
+=head1 DESCRIPTION
+
+A Log::Dispatchouli::Proxy object is the child of a L<Log::Dispatchouli> logger
+(or another proxy) and relays log messages to its parent.  It behaves almost
+identically to a Log::Dispatchouli logger, and you should refer there for more
+of its documentation.
+
+Here are the differences:
+
+=begin :list
+
+* You can't create a proxy with C<< ->new >>, only by calling C<< ->proxy >> on an existing logger or proxy.
+
+* C<set_debug> will set a value for the proxy; if none is set, C<get_debug> will check the parent's setting; C<clear_debug> will clear any set value on this proxy
+
+* C<log_debug> messages will be redispatched to C<log> (bug to the 'debug' logging level) to prevent parent loggers from dropping them due to C<debug> setting differences
+
+=end :list
+
+=cut
+
 sub _new {
   my ($class, $arg) = @_;
 
@@ -35,11 +56,16 @@ sub logger { $_[0]{logger} }
 
 sub set_prefix   { $_[0]{prefix} = $_[1] }
 sub get_prefix   { $_[0]{prefix} }
-sub unset_prefix { undef $_[0]{prefix} }
+sub clear_prefix { undef $_[0]{prefix} }
+sub unset_prefix { $_[0]->clear_prefix }
 
 sub set_debug    { $_[0]{debug} = $_[1] ? 1 : 0 }
-sub get_debug    { return $_[0]{debug} }
 sub clear_debug  { undef $_[0]{debug} }
+
+sub get_debug {
+  return $_[0]{debug} if defined $_[0]{debug};
+  return $_[0]->parent->get_debug;
+}
 
 sub _get_all_prefix {
   my ($self, $arg) = @_;

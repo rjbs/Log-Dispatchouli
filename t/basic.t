@@ -96,11 +96,11 @@ use Test::Deep;
 
   $logger->set_prefix('xyzzy: ');
   $logger->log('foo');
-  $logger->unset_prefix;
+  $logger->clear_prefix;
   $logger->log('bar');
 
   is($logger->events->[1]{message}, 'xyzzy: foo', 'set a prefix');
-  is($logger->events->[2]{message}, 'bar',        'unset prefix');
+  is($logger->events->[2]{message}, 'bar',        'clear prefix');
 }
 
 {
