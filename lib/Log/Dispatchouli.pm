@@ -74,7 +74,7 @@ If the prefix is a string, it is prepended to each line of the message.  If it
 is a coderef, it is called and passed the message to be logged.  The return
 value is logged instead.
 
-L<Proxy loggers/|METHODS FOR PROXY LOGGERS> also have their own prefix
+L<Proxy loggers|/METHODS FOR PROXY LOGGERS> also have their own prefix
 settings, which accumulate.  So:
 
   my $proxy = $logger->proxy({ proxy_prefix => 'Subsystem 12: ' });
@@ -334,7 +334,7 @@ sub get_debug { return $_[0]->{debug} }
 =method clear_debug
 
 This method does nothing, and is only useful for L<Log::Dispatchouli::Proxy>
-objects.  See L<Methods for Proxy Loggers/METHODS FOR PROXY LOGGERS>, below.
+objects.  See L<Methods for Proxy Loggers|/METHODS FOR PROXY LOGGERS>, below.
 
 =cut
 
@@ -526,9 +526,9 @@ use overload
 
 =head1 SEE ALSO
 
-L<Log::Dispatch>
-
-L<String::Flogger>
+=for :list
+* L<Log::Dispatch>
+* L<String::Flogger>
 
 =cut
 
