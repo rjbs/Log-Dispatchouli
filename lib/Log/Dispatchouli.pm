@@ -211,33 +211,20 @@ and not C<info>>.
 
 sub _join { shift; join q{ }, @{ $_[0] } }
 
-sub prepend_prefix_to_log_args {
-  my $self = shift;
-  my ($new_prefix, $rest) = @_;
-
-  my $arg = _HASH0($rest->[0]) ? { %{shift(@$rest)} } : {};
-
-  my $prefix = $arg->{prefix};
-  $arg->{prefix} = [
-    grep {defined} $new_prefix, (_ARRAY0($prefix) ? @$prefix : $prefix)
-  ];
-
-  return ($arg, $rest);
-}
-
 sub log {
-  my $self = shift;
-
-  my ($arg, $rest) = $self->prepend_prefix_to_log_args($self->get_prefix, \@_);
+  my ($self, @rest) = @_;
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
 
   my $message;
   try {
-    my @flogged = map {; String::Flogger->flog($_) } @$rest;
+    my @flogged = map {; String::Flogger->flog($_) } @rest;
     $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
-    my $prefix = $arg->{prefix};
+    my $prefix  = _ARRAY0($arg->{prefix})
+                ? [ @{ $arg->{prefix} } ]
+                : [ $arg->{prefix} ];
 
-    for (@$prefix) {
+    for (reverse grep { defined } $self->get_prefix, @$prefix) {
       if (_CODELIKE( $_ )) {
         $message = $_->($message);
       } else {
@@ -322,14 +309,33 @@ sub set_debug {
   return($_[0]->{debug} = $_[1] ? 1 : 0);
 }
 
-=method is_debug
+=method get_debug
 
-C<is_debug> also exists as a read-only accessor.  Much less usefully,
-C<is_info> and C<is_fatal> exist, both of which always return true.
+This gets the logger's debug property, which affects the behavior of
+C<log_debug>.
 
 =cut
 
-sub is_debug { return $_[0]->{debug} }
+sub get_debug { return $_[0]->{debug} }
+
+=method clear_debug
+
+This method does nothing, and is only useful for L<Log::Dispatchouli::Proxy>
+objects.
+
+=cut
+
+sub clear_debug { }
+
+=method is_debug
+
+C<is_debug> also exists as a read-only accessor -- it just calls C<get_debug>.
+Much less usefully, C<is_info> and C<is_fatal> exist, both of which always
+return true.
+
+=cut
+
+sub is_debug { $_[0]->get_debug }
 
 sub is_info  { 1 }
 sub is_fatal { 1 }
@@ -378,6 +384,22 @@ sub clear_events {
   @{ $_[0]->{events} } = ();
   return;
 }
+
+sub proxy {
+  my ($self, $arg) = @_;
+  $arg ||= {};
+
+  require Log::Dispatchouli::Proxy;
+  Log::Dispatchouli::Proxy->_new({
+    parent => $self,
+    logger => $self,
+    debug  => $arg->{debug},
+    prefix => $arg->{prefix},
+  });
+}
+
+sub parent { $_[0] }
+sub logger { $_[0] }
 
 use overload
   '&{}'    => sub { my ($self) = @_; sub { $self->log(@_) } },
