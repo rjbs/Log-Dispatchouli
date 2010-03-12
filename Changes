@@ -2,6 +2,8 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.100711  2010-03-12 18:11:41 America/New_York
+
 1.100710  2010-03-12 09:51:32 America/New_York
           add the Log::Dispatchouli::Proxy system
           get_prefix now always returns a scalar (undef, not ())
