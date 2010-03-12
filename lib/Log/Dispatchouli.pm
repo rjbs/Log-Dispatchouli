@@ -10,6 +10,8 @@ use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
 
+our @CARP_NOT = qw(Log::Dispatchouli::Proxy);
+
 =head1 SYNOPSIS
 
   my $logger = Log::Dispatchouli->new({
@@ -260,7 +262,7 @@ sub log {
     die $_ if $self->{fail_fatal};
   };
 
-  die $message if $arg->{fatal};
+  Carp::croak $message if $arg->{fatal};
 
   return;
 }
