@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.100712  2010-03-12 21:43:13 America/New_York
           add the quiet_fatal argument to suppress apparent double-logging to
           standard output and error streams
 
