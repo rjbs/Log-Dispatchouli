@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.102220  2010-08-10 11:09:30 America/New_York
           added logger muting (mute, unmute, clear_muted, etc.)
           new_tester turns off log_pid by default
           internal simplification of Proxy
