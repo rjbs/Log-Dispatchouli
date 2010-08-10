@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          added logger muting (mute, unmute, clear_muted, etc.)
+          internal simplification of Proxy
 
 1.100712  2010-03-12 21:43:13 America/New_York
           add the quiet_fatal argument to suppress apparent double-logging to

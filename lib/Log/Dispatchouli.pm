@@ -249,30 +249,33 @@ sub log {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
 
   my $message;
-  try {
-    my @flogged = map {; String::Flogger->flog($_) } @rest;
-    $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
-    my $prefix  = _ARRAY0($arg->{prefix})
-                ? [ @{ $arg->{prefix} } ]
-                : [ $arg->{prefix} ];
+  if ($arg->{fatal} or ! $self->get_muted) {
+    try {
+      my @flogged = map {; String::Flogger->flog($_) } @rest;
+      $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
-    for (reverse grep { defined } $self->get_prefix, @$prefix) {
-      if (_CODELIKE( $_ )) {
-        $message = $_->($message);
-      } else {
-        $message =~ s/^/$_/gm;
+      my $prefix  = _ARRAY0($arg->{prefix})
+                  ? [ @{ $arg->{prefix} } ]
+                  : [ $arg->{prefix} ];
+
+      for (reverse grep { defined } $self->get_prefix, @$prefix) {
+        if (_CODELIKE( $_ )) {
+          $message = $_->($message);
+        } else {
+          $message =~ s/^/$_/gm;
+        }
       }
-    }
 
-    $self->dispatcher->log(
-      level   => $arg->{level} || 'info',
-      message => $message,
-    );
-  } catch {
-    $message = '(no message could be logged)' unless defined $message;
-    die $_ if $self->{fail_fatal};
-  };
+      $self->dispatcher->log(
+        level   => $arg->{level} || 'info',
+        message => $message,
+      );
+    } catch {
+      $message = '(no message could be logged)' unless defined $message;
+      die $_ if $self->{fail_fatal};
+    };
+  }
 
   Carp::croak $message if $arg->{fatal};
 
@@ -292,8 +295,9 @@ C<log_fatal> and not C<fatal>>.
 
 sub log_fatal {
   my ($self, @rest) = @_;
-  my $arg;
-  $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
+
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
+
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
   local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
 
@@ -316,8 +320,8 @@ sub log_debug {
 
   return unless $self->is_debug;
 
-  my $arg;
-  $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
+
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'debug';
 
   $self->log($arg, @rest);
@@ -353,6 +357,40 @@ objects.  See L<Methods for Proxy Loggers|/METHODS FOR PROXY LOGGERS>, below.
 =cut
 
 sub clear_debug { }
+
+sub mute   { $_[0]{muted} = 1 }
+sub unmute { $_[0]{muted} = 0 }
+
+=method set_muted
+
+  $logger->set_muted($bool);
+
+This sets the logger's muted property, which affects the behavior of
+C<log>.
+
+=cut
+
+sub set_muted {
+  return($_[0]->{muted} = $_[1] ? 1 : 0);
+}
+
+=method get_muted
+
+This gets the logger's muted property, which affects the behavior of
+C<log>.
+
+=cut
+
+sub get_muted { return $_[0]->{muted} }
+
+=method clear_muted
+
+This method does nothing, and is only useful for L<Log::Dispatchouli::Proxy>
+objects.  See L<Methods for Proxy Loggers|/METHODS FOR PROXY LOGGERS>, below.
+
+=cut
+
+sub clear_muted { }
 
 =method get_prefix
 
