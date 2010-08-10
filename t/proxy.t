@@ -104,6 +104,48 @@ are_events("debugging in middle tier", [
   'A: B: C: proxy debug',
 ]);
 
+sub unmute_all {
+  $_->clear_muted for ($proxy, $proxprox);
+  $logger->unmute;
+};
+
+unmute_all;
+
+$proxprox->mute;
+$proxprox->log("proxprox");
+$proxy->log("proxy");
+$logger->log("logger");
+
+are_events("only muted proxprox", [
+  'A: B: C: proxy',
+  'A: logger',
+]);
+
+unmute_all;
+
+$proxy->mute;
+
+$proxprox->log("proxprox");
+$proxy->log("proxy");
+$logger->log("logger");
+
+are_events("muted proxy", [
+  'A: logger',
+]);
+
+unmute_all;
+
+$proxprox->unmute;
+$proxy->mute;
+
+$proxprox->log("proxprox");
+$proxy->log("proxy");
+$logger->log("logger");
+
+are_events("muted proxy, unmuted proxprox", [
+  'A: logger',
+]);
+
 ok($logger->logger == $logger,   "logger->logger == logger");
 ok($proxy->logger == $logger,    "proxy->logger == logger");
 ok($proxprox->logger == $logger, "proxprox->logger == logger");

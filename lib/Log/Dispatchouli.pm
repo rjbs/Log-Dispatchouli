@@ -105,6 +105,7 @@ Valid arguments are:
   facility    - to which syslog facility to send logs; default: none
   log_pid     - if true, prefix all log entries with the pid; default: true
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
+  muted       - a boolean; if true, only fatals are logged; default: false
   debug       - a boolean; if true, log_debug method is not a no-op
                 defaults to the truth of the DISPATCHOULI_DEBUG env var
   quiet_fatal - 'stderr' or 'stdout' or an arrayref of zero, one, or both

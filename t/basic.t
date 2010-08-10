@@ -161,4 +161,40 @@ END_LOG
   );
 }
 
+{
+  my $logger = Log::Dispatchouli->new_tester({ debug => 1 });
+
+  $logger->log('info');
+  $logger->log('debug');
+
+  cmp_deeply(
+    $logger->events,
+    [
+      superhashof({ message => 'info' }),
+      superhashof({ message => 'debug' }),
+    ],
+    'info and debug while not muted',
+  );
+
+  $logger->clear_events;
+
+  $logger->mute;
+
+  $logger->log('info');
+  $logger->log('debug');
+
+  cmp_deeply($logger->events, [ ], 'nothing logged while muted');
+
+  ok(
+    ! eval { $logger->log_fatal('fatal'); 1},
+    "log_fatal still dies while muted",
+  );
+
+  cmp_deeply(
+    $logger->events,
+    [ superhashof({ message => 'fatal' }) ],
+    'logged a fatal even while muted'
+  );
+}
+
 done_testing;
