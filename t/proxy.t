@@ -4,11 +4,7 @@ use warnings;
 use Log::Dispatchouli;
 use Test::More 0.88;
 
-my $logger = Log::Dispatchouli->new_tester({
-  ident   => 'proxy-test',
-  log_pid => 0,
-  to_self => 1,
-});
+my $logger = Log::Dispatchouli->new_tester;
 
 sub are_events {
   my ($comment, $want) = @_;

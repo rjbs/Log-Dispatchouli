@@ -6,7 +6,7 @@ use Test::More 0.88;
 use Test::Deep;
 
 {
-  my $logger = Log::Dispatchouli->new_tester({ to_self => 1 });
+  my $logger = Log::Dispatchouli->new_tester({ log_pid => 1 });
 
   isa_ok($logger, 'Log::Dispatchouli');
 

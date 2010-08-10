@@ -438,6 +438,7 @@ sub new_tester {
 
   return $class->new({
     ident     => "$$:$0",
+    log_pid   => 0,
     %$arg,
     to_stderr => 0,
     to_stdout => 0,
