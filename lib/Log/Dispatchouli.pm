@@ -145,7 +145,7 @@ sub new {
   if ($arg->{to_file}) {
     require Log::Dispatch::File;
     my $log_file = File::Spec->catfile(
-      ($ENV{DISPATCHOULI_PATH} || File::Spec->tempdir),
+      ($ENV{DISPATCHOULI_PATH} || File::Spec->tmpdir),
       sprintf('%s.%04u%02u%02u',
         $ident,
         ((localtime)[5] + 1900),
