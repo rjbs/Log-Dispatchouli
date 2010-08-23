@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.102350  2010-08-23 08:55:17 America/New_York
+          fix a bug in generating tempdirs for file logging (thanks, Sawyer X)
+
 1.102220  2010-08-10 11:09:30 America/New_York
           added logger muting (mute, unmute, clear_muted, etc.)
           new_tester turns off log_pid by default
