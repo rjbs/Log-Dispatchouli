@@ -7,7 +7,7 @@ use Carp ();
 use Log::Dispatchouli;
 use Scalar::Util ();
 
-use Sub::Exporter::GlobExporter qw(glob_exporter);
+use Sub::Exporter::GlobExporter 0.002 qw(glob_exporter); # pass-through args
 use Sub::Exporter -setup => {
   collectors => {
     '$Logger' => glob_exporter(Logger => \'_build_logger'),
