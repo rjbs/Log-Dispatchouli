@@ -6,9 +6,14 @@ use Test::More 0.88;
 use Test::Deep;
 
 {
-  my $logger = Log::Dispatchouli->new_tester({ log_pid => 1 });
+  my $logger = Log::Dispatchouli->new_tester({
+    log_pid => 1,
+    ident   => 't/basic.t',
+  });
 
   isa_ok($logger, 'Log::Dispatchouli');
+
+  is($logger->ident, 't/basic.t', '$logger->ident is available');
 
   $logger->log([ "point: %s", {x=>1,y=>2} ]);
   $logger->log_debug('this will not get logged');

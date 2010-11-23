@@ -55,6 +55,8 @@ sub proxy  {
 sub parent { $_[0]{parent} }
 sub logger { $_[0]{logger} }
 
+sub ident  { $_[0]{logger}->ident }
+
 sub set_prefix   { $_[0]{prefix} = $_[1] }
 sub get_prefix   { $_[0]{prefix} }
 sub clear_prefix { undef $_[0]{prefix} }

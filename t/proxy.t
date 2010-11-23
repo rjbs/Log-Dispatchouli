@@ -4,7 +4,9 @@ use warnings;
 use Log::Dispatchouli;
 use Test::More 0.88;
 
-my $logger = Log::Dispatchouli->new_tester;
+my $logger = Log::Dispatchouli->new_tester({
+  ident => 't/proxy.t',
+});
 
 sub are_events {
   my ($comment, $want) = @_;
@@ -16,6 +18,8 @@ sub are_events {
 }
 
 $logger->log("1");
+
+is($logger->ident, 't/proxy.t', '$logger->ident is available');
 
 are_events("we can log a simple event", [ '1' ]);
 
@@ -29,6 +33,8 @@ are_events("simple log with prefix", [
 my $proxy = $logger->proxy({
   proxy_prefix => 'B: ',
 });
+
+is($proxy->ident, 't/proxy.t', '$proxy->ident is available');
 
 $proxy->log("3");
 

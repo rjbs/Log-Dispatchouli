@@ -217,6 +217,7 @@ sub new {
 
   $self->{dispatcher} = $log;
   $self->{prefix} = $arg->{prefix};
+  $self->{ident}  = $ident;
 
   $self->{debug}  = exists $arg->{debug}
                   ? ($arg->{debug} ? 1 : 0)
@@ -417,6 +418,14 @@ sub get_prefix   { return $_[0]->{prefix}  }
 sub set_prefix   { $_[0]->{prefix} = $_[1] }
 sub clear_prefix { $_[0]->unset_prefix     }
 sub unset_prefix { undef $_[0]->{prefix}   }
+
+=method ident
+
+This method returns the logger's ident.
+
+=cut
+
+sub ident { $_[0]{ident} }
 
 =head1 METHODS FOR TESTING
 
