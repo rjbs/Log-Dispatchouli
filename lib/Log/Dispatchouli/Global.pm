@@ -16,6 +16,8 @@ use Sub::Exporter -setup => {
 
 =head1 DESCRIPTION
 
+B<Warning>: This interface is still experimental.
+
 Log::Dispatchouli::Global is a framework for a global logger object. In your
 top-level programs that are actually executed, you'd add something like this:
 
