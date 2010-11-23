@@ -2,6 +2,8 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.000     2010-11-23 18:48:53 America/New_York
+
 1.102350  2010-08-23 08:55:17 America/New_York
           fix a bug in generating tempdirs for file logging (thanks, Sawyer X)
 
