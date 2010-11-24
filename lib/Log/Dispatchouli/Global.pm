@@ -120,11 +120,12 @@ result of C<default_logger_args> as the arguments.
 
 =cut
 
-my $default_logger;
 sub default_logger {
   my ($self) = @_;
 
-  $default_logger ||= $self->default_logger_class->new(
+  my $ref = $self->default_logger_ref;
+
+  $$ref ||= $self->default_logger_class->new(
     $self->default_logger_args
   );
 }
@@ -156,6 +157,37 @@ sub default_logger_args {
     ident     => "default/$0",
     facility  => undef,
   }
+}
+
+=head2 default_logger_ref
+
+This method returns a scalar reference in which the cached default value is
+stored for comparison.  This is used when someone tries to C<init> the global.
+When someone tries to initialize the global logger, and it's already set, then:
+
+=for :list
+* if the current value is the same as the default, the new value is set
+* if the current value is I<not> the same as the default, we die
+
+Since you want the default to be isolated to your subclass, the default
+behavior is that defaults are cached in the package from which the logger is
+being imported, in the symbol C<$Log_Dispatchouli_Global_Default>.  It is
+B<strongly> recommended that you replace this method to return a shared,
+private variable for your subclasses, by putting the following code in the base
+class for your Log::Dispatchouli::Global classes:
+
+  my $default_logger;
+  sub default_logger_ref { \$default_logger };
+
+=cut
+
+sub default_logger_ref {
+  my ($self) = @_;
+  my $pkg = ref $_[0] || $_[0];
+
+  no strict 'refs';
+  no warnings 'once';
+  return \${"$pkg\::Log_Dispatchouli_Global_Default"};
 }
 
 sub _build_logger {
