@@ -4,6 +4,7 @@ package Log::Dispatchouli;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
 use Carp ();
+use File::Spec ();
 use Log::Dispatch;
 use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(blessed weaken);
