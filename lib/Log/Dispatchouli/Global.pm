@@ -215,4 +215,33 @@ sub _build_logger {
   return $globref;
 }
 
+=head1 COOKBOOK
+
+=head2 Common Logger Recipes
+
+Say you often use the same configuration for one kind of program, like
+automated tests.  You've already written your own subclass to get your own
+storage and defaults, maybe C<MyApp::Logger>.
+
+You can't just write a subclass with a different default, because of how
+defaults are stored and recomputed.  Anyway, you don't just want it to be a
+default, you want it to be I<the> logger.  What you want to do in this case is
+to initialize your logger normally, then reexport it, like this:
+
+  package MyApp::Logger::Test;
+  use parent 'MyApp::Logger';
+
+  use MyApp::Logger '$Logger' => {
+    init => {
+      ident    => "Tester($0)",
+      to_self  => 1,
+      facility => undef,
+    },
+  };
+
+This will set up the logger and re-export it, and will properly die if anything
+else attempts to initialize the logger to something else.
+
+=cut
+
 1;
