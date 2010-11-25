@@ -169,25 +169,25 @@ When someone tries to initialize the global logger, and it's already set, then:
 * if the current value is the same as the default, the new value is set
 * if the current value is I<not> the same as the default, we die
 
-Since you want the default to be isolated to your subclass, the default
-behavior is that defaults are cached in the package from which the logger is
-being imported, in the symbol C<$Log_Dispatchouli_Global_Default>.  It is
-B<strongly> recommended that you replace this method to return a shared,
-private variable for your subclasses, by putting the following code in the base
-class for your Log::Dispatchouli::Global classes:
+Since you want the default to be isolated to your application's logger, the
+default behavior is default loggers are associated with the glob reference to
+which the default might be assigned.  It is recommended that you replace this
+method to return a shared, private variable for your subclasses, by putting the
+following code in the base class for your Log::Dispatchouli::Global classes:
 
   my $default_logger;
   sub default_logger_ref { \$default_logger };
 
 =cut
 
+my %default_logger_for_glob;
+
 sub default_logger_ref {
   my ($self) = @_;
-  my $pkg = ref $_[0] || $_[0];
 
-  no strict 'refs';
-  no warnings 'once';
-  return \${"$pkg\::Log_Dispatchouli_Global_Default"};
+  my $glob = $self->logger_globref;
+  my $addr = Scalar::Util::refaddr($glob);
+  return \$default_logger_for_glob{ $addr };
 }
 
 sub _build_logger {
