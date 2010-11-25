@@ -223,10 +223,11 @@ Say you often use the same configuration for one kind of program, like
 automated tests.  You've already written your own subclass to get your own
 storage and defaults, maybe C<MyApp::Logger>.
 
-You can't just write a subclass with a different default, because of how
-defaults are stored and recomputed.  Anyway, you don't just want this new value
-to be the default, you want it to be I<the> logger.  What you want to do in
-this case is to initialize your logger normally, then reexport it, like this:
+You can't just write a subclass with a different default, because if another
+class using the same global has set the global with I<its> default, yours won't
+be honored.  You don't just want this new value to be the default, you want it
+to be I<the> logger.  What you want to do in this case is to initialize your
+logger normally, then reexport it, like this:
 
   package MyApp::Logger::Test;
   use parent 'MyApp::Logger';
@@ -243,23 +244,5 @@ This will set up the logger and re-export it, and will properly die if anything
 else attempts to initialize the logger to something else.
 
 =cut
-
-# <@rjbs> So, Parent and Child share the storage glob.
-# <@rjbs> They have different defaults.
-# <@rjbs> Someone imports from Parent.  The glob is initialized to the
-#         default, because the glob's scalar is undef.
-# <@rjbs> Someone imports from child.  Were the glob's scalar undef, they
-#         would get a default built to Child's specs.
-# <@rjbs> but it isn't, so they get the one that was set by Parent
-# <@rjbs> Worse:
-# <@rjbs> someone imports from Child, but specifies a value.  we check the
-#         cached default, and because we have not subclassed to get a
-#         shared default for Child/Parent, there is no set default, so we
-#         compute the default
-# <@rjbs> we computed a new default, and compare the current value to it --
-#         which was a default constructed in Parent -- and see that it is
-#         unequal
-# <@rjbs> since we have (Exisiting != Cached Default) and are trying to
-#         initialize, it is read as a re-init, and throws
 
 1;
