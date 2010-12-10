@@ -91,7 +91,7 @@ $logger->log_debug("logger debug");
 $proxy->log_debug("proxy debug");
 $proxprox->log_debug("proxprox debug");
 
-are_events("debugging in middle tier", [
+are_events("debugging in middle tier (middle set_debug)", [
   'A: B: C: proxy debug',
   'A: B: C: E: F: proxprox debug',
 ]);
