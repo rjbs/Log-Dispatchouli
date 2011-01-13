@@ -247,8 +247,6 @@ generate a new message (if the prefix is a coderef).
 
 sub _join { shift; join q{ }, @{ $_[0] } }
 
-sub string_flogger { 'String::Flogger' }
-
 sub log {
   my ($self, @rest) = @_;
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
@@ -430,6 +428,18 @@ This method returns the logger's ident.
 =cut
 
 sub ident { $_[0]{ident} }
+
+
+=head1 METHODS FOR SUBCLASSING
+
+=head2 string_flogger
+
+This method returns the thing on which F<flog> will be called to format log
+messages.  By default, it just returns C<String::Flogger>
+
+=cut
+
+sub string_flogger { 'String::Flogger' }
 
 =head1 METHODS FOR TESTING
 
