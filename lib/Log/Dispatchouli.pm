@@ -247,6 +247,8 @@ generate a new message (if the prefix is a coderef).
 
 sub _join { shift; join q{ }, @{ $_[0] } }
 
+sub string_flogger { 'String::Flogger' }
+
 sub log {
   my ($self, @rest) = @_;
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
@@ -255,7 +257,8 @@ sub log {
 
   if ($arg->{fatal} or ! $self->get_muted) {
     try {
-      my @flogged = map {; String::Flogger->flog($_) } @rest;
+      my $flogger = $self->string_flogger;
+      my @flogged = map {; $flogger->flog($_) } @rest;
       $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
       my $prefix  = _ARRAY0($arg->{prefix})
