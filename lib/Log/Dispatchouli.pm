@@ -146,7 +146,7 @@ sub new {
   if ($arg->{to_file}) {
     require Log::Dispatch::File;
     my $log_file = File::Spec->catfile(
-      ($ENV{DISPATCHOULI_PATH} || File::Spec->tmpdir),
+      ($self->env_value('PATH') || File::Spec->tmpdir),
       sprintf('%s.%04u%02u%02u',
         $ident,
         ((localtime)[5] + 1900),
@@ -170,7 +170,7 @@ sub new {
     );
   }
 
-  if ($arg->{facility} and not $ENV{DISPATCHOULI_NOSYSLOG}) {
+  if ($arg->{facility} and not $self->env_value('NOSYSLOG')) {
     require Log::Dispatch::Syslog;
     $log->add(
       Log::Dispatch::Syslog->new(
@@ -222,7 +222,7 @@ sub new {
 
   $self->{debug}  = exists $arg->{debug}
                   ? ($arg->{debug} ? 1 : 0)
-                  : ($ENV{DISPATCHOULI_DEBUG} ? 1 : 0);
+                  : ($self->env_value('DEBUG') ? 1 : 0);
 
   $self->{fail_fatal} = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
 
@@ -440,6 +440,44 @@ messages.  By default, it just returns C<String::Flogger>
 =cut
 
 sub string_flogger { 'String::Flogger' }
+
+=head2 env_prefix
+
+This method should return a string used as a prefix to find environment
+variables that affect the logger's behavior.  For example, if this method
+returns C<XYZZY> then when checking the environment for a default value for the
+C<debug> parameter, Log::Dispatchouli will first check C<XYZZY_DEBUG>, then
+C<DISPATCHOULI_DEBUG>.
+
+By default, this method returns C<()>, which means no extra environment
+variable is checked.
+
+=cut
+
+sub env_prefix { return; }
+
+=head2 env_value
+
+  my $value = $logger->env_value('DEBUG');
+
+This method returns the value for the environment variable suffix given.  For
+example, the example given, calling with C<DEBUG> will check
+C<DISPATCHOULI_DEBUG>.
+
+=cut
+
+sub env_value {
+  my ($self, $suffix) = @_;
+
+  my @path = grep { defined } ($self->env_prefix, 'DISPATCHOULI');
+
+  for my $prefix (@path) {
+    my $name = join q{_}, $prefix, $suffix;
+    return $ENV{ $name } if defined $ENV{ $name };
+  }
+
+  return;
+}
 
 =head1 METHODS FOR TESTING
 
