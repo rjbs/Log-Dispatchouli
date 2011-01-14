@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.002     2011-01-14 17:51:16 America/New_York
           add env_value and env_prefix methods
 
 2.001     2011-01-13 12:45:05 America/New_York
