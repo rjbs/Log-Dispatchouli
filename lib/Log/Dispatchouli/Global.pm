@@ -190,6 +190,13 @@ sub default_logger_ref {
   return \$default_logger_for_glob{ $addr };
 }
 
+sub _equiv {
+  my ($self, $x, $y) = @_;
+
+  return 1 if Scalar::Util::refaddr($x) == Scalar::Util::refaddr($y);
+  return
+}
+
 sub _build_logger {
   my ($self, $arg) = @_;
 
@@ -208,7 +215,7 @@ sub _build_logger {
       # logger twice, with different configurations, in one program!
       # -- rjbs, 2011-01-21
       Carp::confess("attempted to initialize $self logger twice")
-        if Scalar::Util::refaddr($Logger) != Scalar::Util::refaddr($default)
+        unless $self->_equiv($Logger, $default);
     }
 
     $$$globref = $new_logger;
