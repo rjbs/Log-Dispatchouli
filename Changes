@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.003     2011-01-21 13:14:43 America/New_York
           add config_id to allow faking Global equality when testing
 
 2.002     2011-01-14 17:51:16 America/New_York
