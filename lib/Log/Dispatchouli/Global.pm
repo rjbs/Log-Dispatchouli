@@ -194,6 +194,7 @@ sub _equiv {
   my ($self, $x, $y) = @_;
 
   return 1 if Scalar::Util::refaddr($x) == Scalar::Util::refaddr($y);
+  return 1 if $x->config_id eq $y->config_id;
   return
 }
 
