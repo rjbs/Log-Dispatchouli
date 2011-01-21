@@ -209,7 +209,13 @@ sub _build_logger {
   if ($arg and $arg->{init}) {
     my $new_logger = $self->default_logger_class->new($arg->{init});
 
-    if ($Logger and ! $self->_equiv($Logger, $new_logger)) {
+    if ($Logger
+      and not(
+        $self->_equiv($Logger, $new_logger)
+        or
+        $self->_equiv($Logger, $default)
+      )
+    ) {
       # We already set up a logger, so we'll check that our new one is
       # equivalent to the old.  If so, we'll keep the old, since it's good
       # enough.  If not, we'll raise an exception: you can't configure the
