@@ -199,15 +199,19 @@ sub _build_logger {
   my $Logger  = $$$globref;
 
   if ($arg and $arg->{init}) {
-    if (
-      $Logger
-      and
-      Scalar::Util::refaddr($Logger) != Scalar::Util::refaddr($default)
-    ) {
-      Carp::confess("attempted to initialize $self logger twice");
+    my $new_logger = $self->default_logger_class->new($arg->{init});
+
+    if ($Logger) {
+      # We already set up a logger, so we'll check that our new one is
+      # equivalent to the old.  If so, we'll keep the old, since it's good
+      # enough.  If not, we'll raise an exception: you can't configure the
+      # logger twice, with different configurations, in one program!
+      # -- rjbs, 2011-01-21
+      Carp::confess("attempted to initialize $self logger twice")
+        if Scalar::Util::refaddr($Logger) != Scalar::Util::refaddr($default)
     }
 
-    $$$globref = $self->default_logger_class->new($arg->{init});
+    $$$globref = $new_logger;
   } else {
     $$$globref ||= $default;
   }
