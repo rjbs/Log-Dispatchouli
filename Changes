@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          add config_id to allow faking Global equality when testing
 
 2.002     2011-01-14 17:51:16 America/New_York
           add env_value and env_prefix methods

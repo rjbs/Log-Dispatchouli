@@ -209,14 +209,21 @@ sub _build_logger {
   if ($arg and $arg->{init}) {
     my $new_logger = $self->default_logger_class->new($arg->{init});
 
-    if ($Logger) {
+    if ($Logger and ! $self->_equiv($Logger, $new_logger)) {
       # We already set up a logger, so we'll check that our new one is
       # equivalent to the old.  If so, we'll keep the old, since it's good
       # enough.  If not, we'll raise an exception: you can't configure the
       # logger twice, with different configurations, in one program!
       # -- rjbs, 2011-01-21
-      Carp::confess("attempted to initialize $self logger twice")
-        unless $self->_equiv($Logger, $default);
+      my $old = $Logger->config_id;
+      my $new = $new_logger->config_id;
+
+      Carp::confess(sprintf(
+        "attempted to initialize %s logger twice; old config %s, new config %s",
+        $self,
+        $old,
+        $new,
+      ));
     }
 
     $$$globref = $new_logger;
