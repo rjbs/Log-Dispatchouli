@@ -112,6 +112,7 @@ Valid arguments are:
   quiet_fatal - 'stderr' or 'stdout' or an arrayref of zero, one, or both
                 fatal log messages will not be logged to these
                 (default: stderr)
+  config_id   - a name for this logger's config; rarely needed!
 
 The log path is either F</tmp> or the value of the F<DISPATCHOULI_PATH> env var.
 
@@ -124,6 +125,8 @@ sub new {
 
   my $ident = $arg->{ident}
     or Carp::croak "no ident specified when using $class";
+
+  my $config_id = defined $arg->{config_id} ? $arg->{config_id} : $ident;
 
   my %quiet_fatal;
   for ('quiet_fatal') {
@@ -217,8 +220,9 @@ sub new {
   }
 
   $self->{dispatcher} = $log;
-  $self->{prefix} = $arg->{prefix};
-  $self->{ident}  = $ident;
+  $self->{prefix}     = $arg->{prefix};
+  $self->{ident}      = $ident;
+  $self->{config_id}  = $config_id;
 
   $self->{debug}  = exists $arg->{debug}
                   ? ($arg->{debug} ? 1 : 0)
@@ -429,6 +433,16 @@ This method returns the logger's ident.
 
 sub ident { $_[0]{ident} }
 
+=method config_id
+
+This method returns the logger's configuration id, which defaults to its ident.
+This can be used to make two loggers equivalent in Log::Dispatchouli::Global so
+that trying to reinitialize with a new logger with the same C<config_id> as the
+current logger will not throw an exception, and will simply do no thing.
+
+=cut
+
+sub config_id { $_[0]{config_id} }
 
 =head1 METHODS FOR SUBCLASSING
 

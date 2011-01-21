@@ -55,7 +55,8 @@ sub proxy  {
 sub parent { $_[0]{parent} }
 sub logger { $_[0]{logger} }
 
-sub ident  { $_[0]{logger}->ident }
+sub ident     { $_[0]{logger}->ident }
+sub config_id { $_[0]{logger}->config_id }
 
 sub set_prefix   { $_[0]{prefix} = $_[1] }
 sub get_prefix   { $_[0]{prefix} }
