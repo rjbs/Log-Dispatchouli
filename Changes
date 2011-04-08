@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.005     2011-04-07 23:16:40 America/New_York
           add log_file and log_path options
 
 2.004     2011-01-21 15:52:41 America/New_York
