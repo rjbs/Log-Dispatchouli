@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          add log_file and log_path options
 
 2.004     2011-01-21 15:52:41 America/New_York
           BUG FIX:  it is okay to replace the default logger, always

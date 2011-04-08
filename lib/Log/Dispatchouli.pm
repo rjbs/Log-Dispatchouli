@@ -100,10 +100,15 @@ Valid arguments are:
 
   ident       - the name of the thing logging (mandatory)
   to_self     - log to the logger object for testing; default: false
-  to_file     - log to PROGRAM_NAME.YYYYMMDD in the log path; default: false
   to_stdout   - log to STDOUT; default: false
   to_stderr   - log to STDERR; default: false
   facility    - to which syslog facility to send logs; default: none
+
+  to_file     - log to PROGRAM_NAME.YYYYMMDD in the log path; default: false
+  log_file    - a leaf name for the file to log to with to_file
+  log_path    - path in which to log to file; defaults to DISPATCHOULI_PATH
+                environment variable or, failing that, to your system's tmpdir
+
   log_pid     - if true, prefix all log entries with the pid; default: true
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
   muted       - a boolean; if true, only fatals are logged; default: false
@@ -149,8 +154,8 @@ sub new {
   if ($arg->{to_file}) {
     require Log::Dispatch::File;
     my $log_file = File::Spec->catfile(
-      ($self->env_value('PATH') || File::Spec->tmpdir),
-      sprintf('%s.%04u%02u%02u',
+      ($arg->{log_path} || $self->env_value('PATH') || File::Spec->tmpdir),
+      $arg->{log_file} || sprintf('%s.%04u%02u%02u',
         $ident,
         ((localtime)[5] + 1900),
         sprintf('%02d', (localtime)[4] + 1),
