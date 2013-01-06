@@ -52,7 +52,7 @@ this:
   }
 
 This eliminates the need to pass around what is effectively a global, while
-still allowing it to be specialized withing certain contexts of your program.
+still allowing it to be specialized within certain contexts of your program.
 
 B<Warning!>  Although you I<could> just use Log::Dispatchouli::Global as your
 shared logging library, you almost I<certainly> want to write a subclass that
