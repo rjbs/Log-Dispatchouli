@@ -32,6 +32,32 @@ my $tmpdir = tempdir( TMPDIR => 1, CLEANUP => 1 );
     'logged timestamp, pid, and hash';
 }
 
+{
+  {
+    my $logger = Log::Dispatchouli->new({
+      log_pid  => 0,
+      ident    => 'ouli_file',
+      to_file  => 1,
+      log_file => 'ouli.log',
+      log_path => $tmpdir,
+      file_callbacks => sub { "$$: sec:" . time() . " m:" . {@_}->{message} },
+    });
+
+    isa_ok($logger, 'Log::Dispatchouli');
+
+    is($logger->ident, 'ouli_file', '$logger->ident is available');
+
+    $logger->log([ "point: %s", {x=>1,y=>2} ]);
+  }
+
+  my $log_file = catfile($tmpdir, 'ouli.log');
+  ok -r $log_file, 'log file with custom name';
+
+  like slurp_file($log_file),
+    qr/^$$: sec:\d+ m:point: \{\{\{("[xy]": [12](, )?){2}\}\}\}$/,
+    'custom file callbacks';
+}
+
 done_testing;
 
 sub slurp_file {
