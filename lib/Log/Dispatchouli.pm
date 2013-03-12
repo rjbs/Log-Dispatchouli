@@ -69,7 +69,7 @@ The above will log something like:
 
 To pass a prefix per-message:
 
-  $logger->log({ prefix => 'Sub-Item 234: ', 'error!' })
+  $logger->log({ prefix => 'Sub-Item 234: ' }, 'error!')
 
   # Logs: Batch 123: Sub-Item 234: error!
 
