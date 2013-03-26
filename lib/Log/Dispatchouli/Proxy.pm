@@ -126,4 +126,8 @@ sub log_debug {
   $self->log($arg, @rest);
 }
 
+sub info  { shift()->log(@_); }
+sub fatal { shift()->log_fatal(@_); }
+sub debug { shift()->log_debug(@_); }
+
 1;
