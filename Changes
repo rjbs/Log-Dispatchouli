@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+          put the ->info, ->fatal, ->debug methods on proxies, too
+          (thanks George Hartzell)
 
 2.005     2011-04-07 23:16:40 America/New_York
           add log_file and log_path options
