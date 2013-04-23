@@ -171,12 +171,8 @@ When someone tries to initialize the global logger, and it's already set, then:
 
 Since you want the default to be isolated to your application's logger, the
 default behavior is default loggers are associated with the glob reference to
-which the default might be assigned.  It is recommended that you replace this
-method to return a shared, private variable for your subclasses, by putting the
-following code in the base class for your Log::Dispatchouli::Global classes:
-
-  my $default_logger;
-  sub default_logger_ref { \$default_logger };
+which the default might be assigned.  It is unlikely that you will need to
+interact with this method.
 
 =cut
 
