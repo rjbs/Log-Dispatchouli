@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.007     2013-09-25 22:12:22 America/New_York
+          doc fixes and tests (thanks George Hartzell and Randy Stauner)
+
 2.006     2013-04-05 15:02:05 America/New_York
           put the ->info, ->fatal, ->debug methods on proxies, too
           (thanks George Hartzell)
