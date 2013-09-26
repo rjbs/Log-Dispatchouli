@@ -28,7 +28,7 @@ my $tmpdir = tempdir( TMPDIR => 1, CLEANUP => 1 );
   ok -r $log_file, 'log file with ident name';
 
   like slurp_file($log_file),
-    qr/^.+? \[$$\] point: \{\{\{("[xy]": [12](, )?){2}\}\}\}$/,
+    qr/^.+? \[$$\] point: \{\{\{("[xy]": [12](, ?)?){2}\}\}\}$/,
     'logged timestamp, pid, and hash';
 }
 
