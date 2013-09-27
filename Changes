@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.008     2013-09-26 20:39:11 America/New_York
+          fix test for JSON::PP, which doesn't always follow orders about
+          spaces!  (thanks, Dagfinn Ilmari Mannsåker!)
+
 2.007     2013-09-25 22:12:22 America/New_York
           doc fixes and tests (thanks George Hartzell and Randy Stauner)
 
