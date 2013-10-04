@@ -20,7 +20,7 @@ our @CARP_NOT = qw(Log::Dispatchouli::Proxy);
     facility  => 'daemon',
     to_stdout => $opt->{print},
     debug     => $opt->{verbose}
-  })
+  });
 
   $logger->log([ "There are %s items left to purge...", $stuff_left ]);
 
