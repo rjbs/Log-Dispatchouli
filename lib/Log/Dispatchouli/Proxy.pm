@@ -34,7 +34,9 @@ sub _new {
     logger => $arg->{logger},
     debug  => $arg->{debug},
     proxy_prefix => $arg->{proxy_prefix},
+    caller_level => 1
   };
+  $guts->{caller_level} = $arg->{caller_level} if exists $arg->{caller_level};
 
   bless $guts => $class;
 }
@@ -101,6 +103,7 @@ sub log {
   return if $self->_get_local_muted and ! $arg->{fatal};
 
   local $arg->{prefix} = $self->_get_all_prefix($arg);
+  local $arg->{caller_level} = exists $arg->{caller_level} ? $arg->{caller_level} + 1 : $self->{caller_level} + 1;
 
   $self->parent->log($arg, @rest);
 }
@@ -110,6 +113,7 @@ sub log_fatal {
 
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
   local $arg->{fatal}  = 1;
+  local $arg->{caller_level} = exists $arg->{caller_level} ? $arg->{caller_level} + 1 : $self->{caller_level} + 1;
 
   $self->log($arg, @rest);
 }
@@ -122,6 +126,7 @@ sub log_debug {
 
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
   local $arg->{level} = 'debug';
+  local $arg->{caller_level} = exists $arg->{caller_level} ? $arg->{caller_level} + 1 : $self->{caller_level} + 1;
 
   $self->log($arg, @rest);
 }
