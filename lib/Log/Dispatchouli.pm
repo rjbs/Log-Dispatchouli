@@ -11,6 +11,8 @@ use Scalar::Util qw(blessed weaken);
 use String::Flogger;
 use Try::Tiny 0.04;
 
+require Log::Dispatchouli::Proxy;
+
 our @CARP_NOT = qw(Log::Dispatchouli::Proxy);
 
 =head1 SYNOPSIS
