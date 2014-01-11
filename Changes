@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.009     2014-01-11 14:14:11-05:00 America/New_York
+          load the Proxy class earlier, to get it loaded prefork
+
 2.008     2013-09-26 20:39:11 America/New_York
           fix test for JSON::PP, which doesn't always follow orders about
           spaces!  (thanks, Dagfinn Ilmari Mannsåker!)
