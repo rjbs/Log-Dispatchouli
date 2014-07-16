@@ -110,7 +110,9 @@ Valid arguments are:
   log_file    - a leaf name for the file to log to with to_file
   log_path    - path in which to log to file; defaults to DISPATCHOULI_PATH
                 environment variable or, failing that, to your system's tmpdir
-  file_callbacks - alternative callbacks to modify messages logged to file
+
+  file_format - this optional coderef is passed the message to be logged
+                and returns the text to write out
 
   log_pid     - if true, prefix all log entries with the pid; default: true
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
@@ -166,17 +168,19 @@ sub new {
       )
     );
 
+    my $format = $arg->{file_format} || sub {
+      # The time format returned here is subject to change. -- rjbs,
+      # 2008-11-21
+      return (localtime) . ' ' . $_[0] . "\n"
+    };
+
     $log->add(
       Log::Dispatch::File->new(
         name      => 'logfile',
         min_level => 'debug',
         filename  => $log_file,
         mode      => 'append',
-        callbacks => $arg->{file_callbacks} || sub {
-          # The time format returned here is subject to change. -- rjbs,
-          # 2008-11-21
-          return (localtime) . ' ' . {@_}->{message} . "\n"
-        }
+        callbacks => sub { $format->({@_}->{message}) },
       )
     );
   }

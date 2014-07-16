@@ -40,7 +40,7 @@ my $tmpdir = tempdir( TMPDIR => 1, CLEANUP => 1 );
       to_file  => 1,
       log_file => 'ouli.log',
       log_path => $tmpdir,
-      file_callbacks => sub { "$$: sec:" . time() . " m:" . {@_}->{message} },
+      file_format => sub { "$$: sec:" . time() . " m:" . $_[0] },
     });
 
     isa_ok($logger, 'Log::Dispatchouli');
@@ -54,7 +54,7 @@ my $tmpdir = tempdir( TMPDIR => 1, CLEANUP => 1 );
   ok -r $log_file, 'log file with custom name';
 
   like slurp_file($log_file),
-    qr/^$$: sec:\d+ m:point: \{\{\{("[xy]": [12](, )?){2}\}\}\}$/,
+    qr/^$$: sec:\d+ m:point: \{\{\{("[xy]": [12](, ?)?){2}\}\}\}$/,
     'custom file callbacks';
 }
 
