@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.010     2014-07-28 22:24:23-04:00 America/New_York
+          add the file_format option (thanks, Randy Stauner)
+
 2.009     2014-01-11 14:14:11-05:00 America/New_York
           load the Proxy class earlier, to get it loaded prefork
 
