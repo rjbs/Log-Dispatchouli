@@ -151,9 +151,13 @@ sub new {
   my $self = bless {} => $class;
 
   my $log = Log::Dispatch->new(
-    callbacks => sub {
-      return( ($pid_prefix ? "[$$] " : '') . {@_}->{message})
-    },
+    $pid_prefix
+    ? (
+        callbacks => sub {
+	  "[$$] ". {@_}->{message}
+	},
+      )
+    : ()
   );
 
   if ($arg->{to_file}) {
