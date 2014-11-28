@@ -170,19 +170,21 @@ sub new {
       }
     );
 
-    my $format = $arg->{file_format} || sub {
-      # The time format returned here is subject to change. -- rjbs,
-      # 2008-11-21
-      return (localtime) . ' ' . $_[0] . "\n"
-    };
-
     $log->add(
       Log::Dispatch::File->new(
         name      => 'logfile',
         min_level => 'debug',
         filename  => $log_file,
         mode      => 'append',
-        callbacks => sub { $format->({@_}->{message}) },
+        callbacks => do {
+          if (my $format = $arg->{file_format}) {
+            sub { $format->({@_}->{message}) }
+          } else {
+            # The time format returned here is subject to change. -- rjbs,
+            # 2008-11-21
+            sub { localtime . ' ' . {@_}->{message} . "\n" }
+          }
+        },
       )
     );
   }
