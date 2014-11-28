@@ -160,12 +160,14 @@ sub new {
     require Log::Dispatch::File;
     my $log_file = File::Spec->catfile(
       ($arg->{log_path} || $self->env_value('PATH') || File::Spec->tmpdir),
-      $arg->{log_file} || sprintf('%s.%04u%02u%02u',
-        $ident,
-        ((localtime)[5] + 1900),
-        sprintf('%02d', (localtime)[4] + 1),
-        sprintf('%02d', (localtime)[3]),
-      )
+      $arg->{log_file} || do {
+        my @time = localtime;
+        sprintf('%s.%04u%02u%02u',
+          $ident,
+          $time[5] + 1900,
+          $time[4] + 1,
+          $time[3])
+      }
     );
 
     my $format = $arg->{file_format} || sub {
