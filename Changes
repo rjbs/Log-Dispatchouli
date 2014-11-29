@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.011     2014-11-29 08:50:45-05:00 America/New_York
+          some optimizations in timestamp and pid logging (thanks, Olivier
+          Mengué)
+
 2.010     2014-07-28 22:24:23-04:00 America/New_York
           add the file_format option (thanks, Randy Stauner)
 
