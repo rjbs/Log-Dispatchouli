@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.012     2014-11-30 08:49:01-05:00 America/New_York
+          avoid a newly-introduced warning on older perls (thanks, Christopher
+          J. Madsen)
+
 2.011     2014-11-29 08:50:45-05:00 America/New_York
           some optimizations in timestamp and pid logging (thanks, Olivier
           Mengué)
