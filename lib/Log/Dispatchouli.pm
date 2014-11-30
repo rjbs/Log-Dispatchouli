@@ -186,7 +186,7 @@ sub new {
           } else {
             # The time format returned here is subject to change. -- rjbs,
             # 2008-11-21
-            sub { localtime . ' ' . {@_}->{message} . "\n" }
+            sub { (localtime) . ' ' . {@_}->{message} . "\n" }
           }
         },
       )
