@@ -204,10 +204,8 @@ sub new {
         logopt    => 'pid',
         socket    => 'native',
         callbacks => sub {
-          my %arg = @_;
-          my $message = $arg{message};
-          $message =~ s/\n/<LF>/g;
-          return $message;
+          ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
+          $m
         },
       ),
     );
