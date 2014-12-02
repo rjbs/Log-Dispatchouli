@@ -204,10 +204,8 @@ sub new {
         logopt    => 'pid',
         socket    => 'native',
         callbacks => sub {
-          my %arg = @_;
-          my $message = $arg{message};
-          $message =~ s/\n/<LF>/g;
-          return $message;
+          ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
+          $m
         },
       ),
     );
@@ -233,7 +231,7 @@ sub new {
         name      => "std$dest",
         min_level => 'debug',
         stderr    => ($dest eq 'err' ? 1 : 0),
-        callbacks => sub { my %arg = @_; "$arg{message}\n"; },
+        callbacks => sub { +{@_}->{message} . "\n" },
         ($quiet_fatal{"std$dest"} ? (max_level => 'info') : ()),
       ),
     );
