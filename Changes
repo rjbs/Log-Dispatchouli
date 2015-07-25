@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - minor optimizations to callbacks (thanks, Olivier Mengué)
 
 2.012     2014-11-30 08:49:01-05:00 America/New_York
           avoid a newly-introduced warning on older perls (thanks, Christopher
