@@ -20,7 +20,7 @@ Here are the differences:
 
 * C<set_debug> will set a value for the proxy; if none is set, C<get_debug> will check the parent's setting; C<clear_debug> will clear any set value on this proxy
 
-* C<log_debug> messages will be redispatched to C<log> (bug to the 'debug' logging level) to prevent parent loggers from dropping them due to C<debug> setting differences
+* C<log_debug> messages will be redispatched to C<log> (to the 'debug' logging level) to prevent parent loggers from dropping them due to C<debug> setting differences
 
 =end :list
 
