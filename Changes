@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.013     2016-07-30 16:34:57-04:00 America/New_York (TRIAL RELEASE)
         - minor optimizations to callbacks (thanks, Olivier Mengué)
 
 2.012     2014-11-30 08:49:01-05:00 America/New_York
