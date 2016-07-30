@@ -257,8 +257,8 @@ sub new {
 
   $logger->log(\%arg, @messages);
 
-This method uses L<String::Flogger> on the input, then logs the result.  Each
-message is flogged individually, then joined with spaces.
+This method uses L<String::Flogger> on the input, then I<unconditionally> logs
+the result.  Each message is flogged individually, then joined with spaces.
 
 If the first argument is a hashref, it will be used as extra arguments to
 logging.  It may include a C<prefix> entry to preprocess the message by
