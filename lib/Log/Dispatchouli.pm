@@ -592,12 +592,15 @@ setting.  It can be changed or cleared later on the proxy.
 
 =cut
 
+sub proxy_class {
+  return 'Log::Dispatchouli::Proxy';
+}
+
 sub proxy {
   my ($self, $arg) = @_;
   $arg ||= {};
 
-  require Log::Dispatchouli::Proxy;
-  Log::Dispatchouli::Proxy->_new({
+  $self->proxy_class->_new({
     parent => $self,
     logger => $self,
     proxy_prefix => $arg->{proxy_prefix},
