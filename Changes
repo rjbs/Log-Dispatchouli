@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.014     2016-10-14 18:28:36-04:00 America/New_York
         - non-trial release of v2.013
 
 2.013     2016-07-30 16:34:57-04:00 America/New_York (TRIAL RELEASE)
