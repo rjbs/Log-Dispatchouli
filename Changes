@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - non-trial release of v2.013
 
 2.013     2016-07-30 16:34:57-04:00 America/New_York (TRIAL RELEASE)
         - minor optimizations to callbacks (thanks, Olivier Mengué)
