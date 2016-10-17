@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.015     2016-10-17 15:42:54-04:00 America/New_York
+        - Log::Dispatchouli subclass can now provide its own proxy_class
+          method to use something other than Log::Dispatchouli::Proxy
+
 2.014     2016-10-14 18:28:36-04:00 America/New_York
         - non-trial release of v2.013
 
