@@ -3,7 +3,7 @@ use warnings;
 package Log::Dispatchouli;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
-use Carp ();
+use Carp qw/carp/;
 use File::Spec ();
 use Log::Dispatch;
 use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
@@ -510,6 +510,102 @@ sub env_value {
 
   return;
 }
+
+=method dlog
+
+    print $logger->dlog( [ "you passed '%s'" ] )->( 'foo' );
+        # prints 'foo' and logs "you passed 'foo'"
+
+    print $logger->dlog( sub { [ "you passed %s arguments", scalar @_ ] } )->( 'foo' );
+        # prints 'foo' and logs "you passed 1 arguments"
+
+    print $logger->dlog->( 'foo' );
+        # prints and logs 'foo'
+
+    print $logger->dlog('foo')->( 'bar' );
+        # prints 'bar' and logs 'foo'
+
+Creates a curried function that issues logging and passes through 
+its arguments. 
+
+Just like C<log>, it accepts an optional hashref of arguments as its
+first parameter. The logging arguments differs slightly from their
+C<log> counterparts:
+
+If the logging argument is an arrayref, the array will have the arguments of the curried
+function appended to them.
+
+    $logger->dlog( [ "I see '%s'" ] )->( 'foo' );
+
+    # equivalent to
+    
+    my $value = do { $logger->log( [ "I see '%s'", 'foo' ] ); 'foo' };
+
+If the logging argument is a coderef, it'll be passed the arguments of the curried
+function, and whatever is returned will be the arguments for C<log>.
+
+    $logger->dlog(sub{ [ "I see '%s'", $_[1] ] )->( 'foo', 'bar' );
+
+    # equivalent to
+    
+    my @values = do { $logger->log( [ "I see '%s'", 'bar' ] ); ( 'foo', 'bar' ) };
+
+If the logging argument is a string, this is what is going to be logged, no
+matter what is passed to the curried function.
+
+    $logger->dlog( "I see something" )->( 'foo', 'bar' );
+
+    # equivalent to
+    
+    my @values = do { $logger->log( "I see 'something'" ); ( 'foo', 'bar' ) };
+
+If C<dlog> is called in a void context, it'll issue a warning, as it is a no-op
+without a call to its returned function.
+
+=method dlog_debug
+
+Like C<dlog> but issues messages at the debugging level.
+
+=cut
+
+sub dlog {
+    push @_, 'log';
+    goto &_dlog;
+}
+
+sub dlog_debug {
+    push @_, 'log_debug';
+    goto &_dlog;
+}
+
+sub _dlog {
+    my $method = pop;
+    my( $self, @rest ) = @_;
+    my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
+
+    carp "dlog called in void context"
+        unless defined wantarray;
+
+    return sub {
+        my @r;
+
+        if( @rest ) {
+            @r = map { 
+                ref $_ eq 'ARRAY' ? [ @$_, @_ ]
+                : ref $_ eq 'CODE' ? $_->(@_)
+                : $_
+            } @rest; 
+        }
+        else {
+            @r = @_;
+        }
+
+        $self->$method( $arg, @r );
+        
+        return wantarray ? @_ : $_[0];
+    };
+}
+
 
 =head1 METHODS FOR TESTING
 
