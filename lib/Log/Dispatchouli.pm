@@ -114,6 +114,9 @@ Valid arguments are:
   file_format - this optional coderef is passed the message to be logged
                 and returns the text to write out
 
+  encoding    - an encoding known to Encode into which to encode all log
+                messages; default: none
+
   log_pid     - if true, prefix all log entries with the pid; default: true
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
   muted       - a boolean; if true, only fatals are logged; default: false
@@ -146,18 +149,25 @@ sub new {
         : ('stderr');
   };
 
-  my $pid_prefix = exists $arg->{log_pid} ? $arg->{log_pid} : 1;
+  my $pid_prefix = exists $arg->{log_pid}  ? $arg->{log_pid}  : 1;
+  my $encoding   = exists $arg->{encoding} ? $arg->{encoding} : "";
+
+  my @callbacks;
+  if ( $pid_prefix ) {
+    push @callbacks, sub { "[$$] ". {@_}->{message} };
+  }
+  if ( $encoding ) {
+    require Encode;
+    my $encoder = Encode::find_encoding($encoding)
+      || Carp::croak("Unknown encoding: $encoding");
+    push @callbacks, sub { $encoder->encode({@_}->{message}) };
+  }
+
 
   my $self = bless {} => $class;
 
   my $log = Log::Dispatch->new(
-    $pid_prefix
-    ? (
-        callbacks => sub {
-	  "[$$] ". {@_}->{message}
-	},
-      )
-    : ()
+    (@callbacks ? (callbacks => \@callbacks) : ())
   );
 
   if ($arg->{to_file}) {
