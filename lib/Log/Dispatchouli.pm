@@ -114,6 +114,15 @@ Valid arguments are:
   file_format - this optional coderef is passed the message to be logged
                 and returns the text to write out
 
+  callbacks   - a hashref with any of the keys 'global', 'self', 'screen', 
+                'facility' and 'file', each with a coderef or arrayref of
+                coderefs as value, which will be added as message formatting
+                callbacks to the logger. See the Log::Dispatch docs for the
+                details. If this exists and is not a hashref the value is
+                used as the value of the 'global' key. Defaults to none.
+  timestamp   - a boolean; if true automatically timestamp messages written 
+                to file even if callbacks were specified for 'file'.
+
   log_pid     - if true, prefix all log entries with the pid; default: true
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
   muted       - a boolean; if true, only fatals are logged; default: false
@@ -148,16 +157,27 @@ sub new {
 
   my $pid_prefix = exists $arg->{log_pid} ? $arg->{log_pid} : 1;
 
+  my $callbacks = $arg->{callbacks} || {};
+  $callbacks = _HASH0($callbacks) ? { %$callbacks } : { global => $callbacks };
+  for my $key ( qw[ global file screen facility self ] ) {
+    next unless exists $callbacks->{$key};
+    for my $value ( $callbacks->{$key} ) {
+      $value = _ARRAY0($value) ? [@$value] : [$value];
+    }
+  }
+
+  my @callbacks;
+  if ( exists $callbacks->{global} ) {
+    push @callbacks, @{$callbacks->{global}};
+  }
+  if ( $pid_prefix ) {
+    push @callbacks, sub { "[$$] ". {@_}->{message} };
+  }
+
   my $self = bless {} => $class;
 
   my $log = Log::Dispatch->new(
-    $pid_prefix
-    ? (
-        callbacks => sub {
-	  "[$$] ". {@_}->{message}
-	},
-      )
-    : ()
+    (@callbacks ? (callbacks => \@callbacks) : ())
   );
 
   if ($arg->{to_file}) {
@@ -173,28 +193,31 @@ sub new {
           $time[3])
       }
     );
-
+    if (my $format = $arg->{file_format}) {
+      push @{$callbacks->{file} ||= [] }, sub { $format->({@_}->{message}) }
+    } elsif ( !exists($callbacks->{file}) or $arg->{timestamp} )  {
+      # The time format returned here is subject to change. -- rjbs,
+      # 2008-11-21
+      push @{$callbacks->{file} ||= [] }, 
+      sub { (localtime) . ' ' . {@_}->{message} . "\n" }
+    }
     $log->add(
       Log::Dispatch::File->new(
         name      => 'logfile',
         min_level => 'debug',
         filename  => $log_file,
         mode      => 'append',
-        callbacks => do {
-          if (my $format = $arg->{file_format}) {
-            sub { $format->({@_}->{message}) }
-          } else {
-            # The time format returned here is subject to change. -- rjbs,
-            # 2008-11-21
-            sub { (localtime) . ' ' . {@_}->{message} . "\n" }
-          }
-        },
+        ($callbacks->{file} ? (callbacks => $callbacks->{file}) : ()),
       )
     );
   }
 
   if ($arg->{facility} and not $self->env_value('NOSYSLOG')) {
     require Log::Dispatch::Syslog;
+    push @{$callbacks->{facility} ||= [] }, sub {
+      ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
+      $m
+    };
     $log->add(
       Log::Dispatch::Syslog->new(
         name      => 'syslog',
@@ -203,10 +226,7 @@ sub new {
         ident     => $ident,
         logopt    => 'pid',
         socket    => 'native',
-        callbacks => sub {
-          ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
-          $m
-        },
+        callbacks => $callbacks->{facility},
       ),
     );
   }
@@ -219,6 +239,7 @@ sub new {
         name      => 'self',
         min_level => 'debug',
         array     => $self->{events},
+        ($callbacks->{self} ? (callbacks => $callbacks->{self}) : ()),
       ),
     );
   }
@@ -233,6 +254,7 @@ sub new {
         stderr    => ($dest eq 'err' ? 1 : 0),
         callbacks => sub { +{@_}->{message} . "\n" },
         ($quiet_fatal{"std$dest"} ? (max_level => 'info') : ()),
+        ($callbacks->{screen} ? (callbacks => $callbacks->{screen}) : ()),
       ),
     );
   }
