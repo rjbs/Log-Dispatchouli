@@ -122,6 +122,7 @@ Valid arguments are:
   quiet_fatal - 'stderr' or 'stdout' or an arrayref of zero, one, or both
                 fatal log messages will not be logged to these
                 (default: stderr)
+  quiet_debug - like quiet_fatal but for debug log messages; default: none
   config_id   - a name for this logger's config; rarely needed!
 
 The log path is either F</tmp> or the value of the F<DISPATCHOULI_PATH> env var.
@@ -138,12 +139,12 @@ sub new {
 
   my $config_id = defined $arg->{config_id} ? $arg->{config_id} : $ident;
 
-  my %quiet_fatal;
-  for ('quiet_fatal') {
-    %quiet_fatal = map {; $_ => 1 } grep { defined }
-      exists $arg->{$_}
-        ? _ARRAY0($arg->{$_}) ? @{ $arg->{$_} } : $arg->{$_}
-        : ('stderr');
+  my %quiet = ( fatal => 'stderr', debug => undef );
+  while ( my($level, $default) = each %quiet ) {
+    $quiet{$level} = { map {; $level => 1 } grep { defined }
+      exists $arg->{$level}
+        ? _ARRAY0($arg->{$level}) ? @{ $arg->{$level} } : $arg->{$level}
+        : ($default) };
   };
 
   my $pid_prefix = exists $arg->{log_pid} ? $arg->{log_pid} : 1;
@@ -229,10 +230,10 @@ sub new {
     $log->add(
       Log::Dispatch::Screen->new(
         name      => "std$dest",
-        min_level => 'debug',
         stderr    => ($dest eq 'err' ? 1 : 0),
         callbacks => sub { +{@_}->{message} . "\n" },
-        ($quiet_fatal{"std$dest"} ? (max_level => 'info') : ()),
+        min_level => ($quiet{debug}{"std$dest"} ? 'info' : 'debug'),
+        ($quiet{fatal}{"std$dest"} ? (max_level => 'info') : ()),
       ),
     );
   }
