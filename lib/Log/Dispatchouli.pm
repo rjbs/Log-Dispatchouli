@@ -237,6 +237,9 @@ sub new {
     );
   }
 
+  $self->{caller_level} = 1;
+  $self->{caller_level} = $arg->{caller_level} if exists $arg->{caller_level};
+
   $self->{dispatcher} = $log;
   $self->{prefix}     = $arg->{prefix};
   $self->{ident}      = $ident;
@@ -303,8 +306,12 @@ sub log {
     };
   }
 
-  Carp::croak $message if $arg->{fatal};
-
+  if ( $arg->{fatal} ){
+      local $Carp::CarpLevel = $Carp::CarpLevel;
+      $Carp::CarpLevel = $self->{caller_level} if $self->{caller_level};
+      $Carp::CarpLevel = $arg->{caller_level} if $arg->{caller_level};
+      Carp::croak $message if $arg->{fatal};
+  }
   return;
 }
 
@@ -326,6 +333,7 @@ sub log_fatal {
 
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
   local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
+  local $arg->{caller_level} = defined $arg->{caller_level} ? $arg->{caller_level} + 1 : $self->{caller_level} + 1;
 
   $self->log($arg, @rest);
 }
@@ -349,6 +357,7 @@ sub log_debug {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
 
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'debug';
+  local $arg->{caller_level} = defined $arg->{caller_level} ? $arg->{caller_level} + 1 : $self->{caller_level} + 1;
 
   $self->log($arg, @rest);
 }
