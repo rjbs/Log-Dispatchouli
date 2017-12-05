@@ -245,6 +245,7 @@ sub new {
   $self->{debug}  = exists $arg->{debug}
                   ? ($arg->{debug} ? 1 : 0)
                   : ($self->env_value('DEBUG') ? 1 : 0);
+  $self->{muted}  = $arg->{muted};
 
   $self->{fail_fatal} = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
 
