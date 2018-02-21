@@ -130,4 +130,9 @@ sub info  { shift()->log(@_); }
 sub fatal { shift()->log_fatal(@_); }
 sub debug { shift()->log_debug(@_); }
 
+use overload
+  '&{}'    => sub { my ($self) = @_; sub { $self->log(@_) } },
+  fallback => 1,
+;
+
 1;
