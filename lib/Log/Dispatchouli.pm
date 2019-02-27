@@ -202,7 +202,7 @@ sub new {
         facility  => $arg->{facility},
         ident     => $ident,
         logopt    => 'pid',
-        socket    => 'native',
+        socket    => $arg->{socket} || 'native',
         callbacks => sub {
           ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
           $m
