@@ -155,8 +155,8 @@ sub new {
     $pid_prefix
     ? (
         callbacks => sub {
-	  "[$$] ". {@_}->{message}
-	},
+          "[$$] ". {@_}->{message}
+        },
       )
     : ()
   );
