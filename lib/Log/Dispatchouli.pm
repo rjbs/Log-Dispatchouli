@@ -123,6 +123,7 @@ Valid arguments are:
                 fatal log messages will not be logged to these
                 (default: stderr)
   config_id   - a name for this logger's config; rarely needed!
+  syslog_socket - a value for Sys::Syslog's "socket" arg; default: "native"
 
 The log path is either F</tmp> or the value of the F<DISPATCHOULI_PATH> env var.
 
@@ -202,7 +203,7 @@ sub new {
         facility  => $arg->{facility},
         ident     => $ident,
         logopt    => 'pid',
-        socket    => $arg->{socket} || 'native',
+        socket    => $arg->{syslog_socket} || 'native',
         callbacks => sub {
           ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
           $m
