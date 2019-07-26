@@ -226,16 +226,9 @@ sub new {
 
   DEST: for my $dest (qw(err out)) {
     next DEST unless $arg->{"to_std$dest"};
-    require Log::Dispatch::Screen;
-    $log->add(
-      Log::Dispatch::Screen->new(
-        name      => "std$dest",
-        min_level => 'debug',
-        stderr    => ($dest eq 'err' ? 1 : 0),
-        callbacks => sub { +{@_}->{message} . "\n" },
-        ($quiet_fatal{"std$dest"} ? (max_level => 'info') : ()),
-      ),
-    );
+    my $method = "enable_std$dest";
+
+    $self->$method;
   }
 
   $self->{dispatcher} = $log;
@@ -248,9 +241,30 @@ sub new {
                   : ($self->env_value('DEBUG') ? 1 : 0);
   $self->{muted}  = $arg->{muted};
 
-  $self->{fail_fatal} = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
+  $self->{quiet_fatal} = \%quiet_fatal;
+  $self->{fail_fatal}  = exists $arg->{fail_fatal} ? $arg->{fail_fatal} : 1;
 
   return $self;
+}
+
+for my $dest (qw(out err)) {
+  my $name = "std$dest";
+  my $code = sub {
+    return if $_[0]->dispatcher->output($name);
+    require Log::Dispatch::Screen;
+    $_[0]->dispatcher->add(
+      Log::Dispatch::Screen->new(
+        name      => "std$dest",
+        min_level => 'debug',
+        stderr    => ($dest eq 'err' ? 1 : 0),
+        callbacks => sub { +{@_}->{message} . "\n" },
+        ($_[0]{quiet_fatal}{"std$dest"} ? (max_level => 'info') : ()),
+      ),
+    );
+  };
+
+  no strict 'refs';
+  *{"enable_std$dest"} = $code;
 }
 
 =method log
