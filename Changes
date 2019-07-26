@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.018     2019-07-26 18:36:56-04:00 America/New_York
         - add enable_stdout and enable_stderr to, uh, enable stdout and enable
           stderr (after initial construction)
 
