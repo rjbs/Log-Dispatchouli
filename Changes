@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - add enable_stdout and enable_stderr to, uh, enable stdout and enable
+          stderr (after initial construction)
 
 2.017     2019-03-12 21:10:26-04:00 America/New_York
         - syslog_socket can now be supplied to replace the native socket for
