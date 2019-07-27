@@ -224,17 +224,17 @@ sub new {
     );
   }
 
+  $self->{dispatcher} = $log;
+  $self->{prefix}     = $arg->{prefix};
+  $self->{ident}      = $ident;
+  $self->{config_id}  = $config_id;
+
   DEST: for my $dest (qw(err out)) {
     next DEST unless $arg->{"to_std$dest"};
     my $method = "enable_std$dest";
 
     $self->$method;
   }
-
-  $self->{dispatcher} = $log;
-  $self->{prefix}     = $arg->{prefix};
-  $self->{ident}      = $ident;
-  $self->{config_id}  = $config_id;
 
   $self->{debug}  = exists $arg->{debug}
                   ? ($arg->{debug} ? 1 : 0)
