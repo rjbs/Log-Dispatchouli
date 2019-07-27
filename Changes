@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.019     2019-07-27 16:13:30-04:00 America/New_York
         - fix an initialization ordering bug for loggers using stdio
 
 2.018     2019-07-26 18:36:56-04:00 America/New_York
