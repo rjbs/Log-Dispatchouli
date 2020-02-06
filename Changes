@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.020     2020-02-06 13:45:44-05:00 America/New_York (TRIAL RELEASE)
         - add stdio_dispatcher_class, so you can subclass the Screen dispatcher
           for stderr and stdio; this is experimental!
 
