@@ -251,9 +251,8 @@ for my $dest (qw(out err)) {
   my $name = "std$dest";
   my $code = sub {
     return if $_[0]->dispatcher->output($name);
-    require Log::Dispatch::Screen;
     $_[0]->dispatcher->add(
-      Log::Dispatch::Screen->new(
+      $_[0]->stdio_dispatcher_class->new(
         name      => "std$dest",
         min_level => 'debug',
         stderr    => ($dest eq 'err' ? 1 : 0),
@@ -644,6 +643,19 @@ you're looking for.  Move along.
 =cut
 
 sub dispatcher   { $_[0]->{dispatcher} }
+
+=method stdio_dispatcher_class
+
+This method is an experimental feature to allow you to pick an alternate
+dispatch class for stderr and stdio.  By default, Log::Dispatch::Screen is
+used.
+
+=cut
+
+sub stdio_dispatcher_class {
+  require Log::Dispatch::Screen;
+  return 'Log::Dispatch::Screen';
+}
 
 =head1 METHODS FOR API COMPATIBILITY
 

@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - add stdio_dispatcher_class, so you can subclass the Screen dispatcher
+          for stderr and stdio; this is experimental!
 
 2.019     2019-07-27 16:13:30-04:00 America/New_York
         - fix an initialization ordering bug for loggers using stdio
