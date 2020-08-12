@@ -657,7 +657,7 @@ sub dispatcher   { $_[0]->{dispatcher} }
 
 This method is an experimental feature to allow you to pick an alternate
 dispatch class for stderr and stdio.  By default, Log::Dispatch::Screen is
-used.
+used.  B<This feature may go away at any time.>
 
 =cut
 
