@@ -149,8 +149,6 @@ sub new {
 
   my $pid_prefix = exists $arg->{log_pid} ? $arg->{log_pid} : 1;
 
-  my $self = bless {} => $class;
-
   my $log = Log::Dispatch->new(
     $pid_prefix
     ? (
@@ -160,6 +158,8 @@ sub new {
       )
     : ()
   );
+
+  my $self = bless { dispatcher => $log } => $class;
 
   if ($arg->{to_file}) {
     require Log::Dispatch::File;
@@ -195,20 +195,10 @@ sub new {
   }
 
   if ($arg->{facility} and not $self->env_value('NOSYSLOG')) {
-    require Log::Dispatch::Syslog;
-    $log->add(
-      Log::Dispatch::Syslog->new(
-        name      => 'syslog',
-        min_level => 'debug',
-        facility  => $arg->{facility},
-        ident     => $ident,
-        logopt    => 'pid',
-        socket    => $arg->{syslog_socket} || 'native',
-        callbacks => sub {
-          ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
-          $m
-        },
-      ),
+    $self->setup_syslog_output(
+      facility  => $arg->{facility},
+      socket    => $arg->{syslog_socket},
+      ident     => $ident,
     );
   }
 
@@ -224,7 +214,6 @@ sub new {
     );
   }
 
-  $self->{dispatcher} = $log;
   $self->{prefix}     = $arg->{prefix};
   $self->{ident}      = $ident;
   $self->{config_id}  = $config_id;
@@ -264,6 +253,26 @@ for my $dest (qw(out err)) {
 
   no strict 'refs';
   *{"enable_std$dest"} = $code;
+}
+
+sub setup_syslog_output {
+  my ($self, %arg) = @_;
+
+  require Log::Dispatch::Syslog;
+  $self->{dispatcher}->add(
+    Log::Dispatch::Syslog->new(
+      name      => 'syslog',
+      min_level => 'debug',
+      facility  => $arg{facility},
+      ident     => $arg{ident},
+      logopt    => 'pid',
+      socket    => $arg{socket} || 'native',
+      callbacks => sub {
+        ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
+        $m
+      },
+    ),
+  );
 }
 
 =method log
