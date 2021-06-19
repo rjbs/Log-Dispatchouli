@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - update author contact info
+        - add perl-support section
 
 2.022     2020-08-24 13:50:15-04:00 America/New_York
         - don't duplicate pid in syslog!
