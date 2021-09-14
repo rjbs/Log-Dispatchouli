@@ -71,6 +71,16 @@ sub get_debug {
   return $_[0]->parent->get_debug;
 }
 
+sub is_debug {
+	return $_[0]->get_debug;
+}
+sub is_info {
+	return 1;
+}
+sub is_fatal {
+	return 1;
+}
+
 sub mute   { $_[0]{muted} = 1 }
 sub unmute { $_[0]{muted} = 0 }
 
