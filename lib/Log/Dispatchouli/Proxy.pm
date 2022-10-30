@@ -34,6 +34,7 @@ sub _new {
     logger => $arg->{logger},
     debug  => $arg->{debug},
     proxy_prefix => $arg->{proxy_prefix},
+    proxy_ctx    => $arg->{proxy_ctx},
   };
 
   bless $guts => $class;
@@ -43,12 +44,21 @@ sub proxy  {
   my ($self, $arg) = @_;
   $arg ||= {};
 
-  (ref $self)->_new({
+  my @proxy_ctx = ($self->{proxy_ctx} // [])->@*;
+
+  if (my $ctx = $arg->{proxy_ctx}) {
+    @proxy_ctx = _ARRAY0($ctx)
+               ? (@proxy_ctx, @$ctx)
+               : (@proxy_ctx, $ctx->%{ sort keys %$ctx });
+  }
+
+  my $prox = (ref $self)->_new({
     parent => $self,
     logger => $self->logger,
     debug  => $arg->{debug},
     muted  => $arg->{muted},
     proxy_prefix => $arg->{proxy_prefix},
+    proxy_ctx    => \@proxy_ctx,
   });
 }
 
@@ -124,6 +134,29 @@ sub log_debug {
   local $arg->{level} = 'debug';
 
   $self->log($arg, @rest);
+}
+
+sub log_event {
+  my ($self, $event, $data) = @_;
+
+  return if $self->get_muted;
+
+  my $message = $self->logger->log_event($event, [
+    ($self->{proxy_ctx} ? $self->{proxy_ctx}->@* : ()),
+    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
+  ]);
+}
+
+sub log_debug_event {
+  my ($self, $event, $data) = @_;
+
+  return if $self->get_muted;
+  return unless $self->get_debug;
+
+  $self->logger->log_event($event, [
+    ($self->{proxy_ctx} ? $self->{proxy_ctx}->@* : ()),
+    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
+  ]);
 }
 
 sub info  { shift()->log(@_); }
