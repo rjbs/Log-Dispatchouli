@@ -311,11 +311,11 @@ sub log {
       my @flogged = map {; $flogger->flog($_) } @rest;
       $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
 
-      my $prefix  = _ARRAY0($arg->{prefix})
-                  ? [ @{ $arg->{prefix} } ]
-                  : [ $arg->{prefix} ];
+      my @prefix  = _ARRAY0($arg->{prefix})
+                  ? @{ $arg->{prefix} }
+                  : $arg->{prefix};
 
-      for (reverse grep { defined } $self->get_prefix, @$prefix) {
+      for (reverse grep { defined } $self->get_prefix, @prefix) {
         if (_CODELIKE( $_ )) {
           $message = $_->($message);
         } else {
