@@ -452,7 +452,7 @@ sub _quote_string {
   $string =~ s{"}{\\"}g;
   $string =~ s{\x0A}{\\n}g;
   $string =~ s{\x0D}{\\r}g;
-  $string =~ s{(\pC)}{sprintf '\\u{%x}', ord $1}ge;
+  $string =~ s{([\pC\v])}{sprintf '\\x{%x}', ord $1}ge;
 
   return qq{"$string"};
 }

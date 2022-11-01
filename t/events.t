@@ -108,8 +108,14 @@ subtest "very basic stuff" => sub {
 
   event_logs_ok(
     ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
-    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\u{200d} \\\\nothing ë"',
+    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{200d} \\\\nothing ë"',
     'control characters and otherwise',
+  );
+
+  event_logs_ok(
+    spacey => [ string => qq{line \x{2028} spacer} ],
+    'event=spacey string="line \x{2028} spacer"',
+    'non-control non-ascii vertical whitespace is also escaped',
   );
 };
 
