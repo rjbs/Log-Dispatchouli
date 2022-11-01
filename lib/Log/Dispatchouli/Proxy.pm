@@ -1,4 +1,4 @@
-use strict;
+use v5.20;
 use warnings;
 package Log::Dispatchouli::Proxy;
 # ABSTRACT: a simple wrapper around Log::Dispatch
