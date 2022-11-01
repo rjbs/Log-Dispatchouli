@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use utf8;
+
 use JSON::MaybeXS;
 use Log::Dispatchouli;
 use Test::More 0.88;
@@ -102,6 +104,12 @@ subtest "very basic stuff" => sub {
     'bogus-subkey' => { valid => { 'foo bar' => 'revolting' } },
     'event=bogus-subkey valid.foo?bar=revolting',
     "cope with bogus key characters in recursion",
+  );
+
+  event_logs_ok(
+    ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
+    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\u{200d} \\\\nothing ë"',
+    'control characters and otherwise',
   );
 };
 

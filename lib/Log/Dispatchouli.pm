@@ -409,8 +409,11 @@ pairs separated by spaces and following these rules:
 * if a key contains characters not permitted in an identifier, they are
   replaced by C<?>
 * values must I<either> be valid identifiers, or be quoted
-* quoted value start and end with C<">; inside the value, C<"> becomes C<\">
-  and C<\> becomes C<\\>
+* quoted value start and end with C<">
+* in a quoted value, C<"> becomes C<\">, C<\> becomes C<\\>, newline and
+  carriage return become C<\n> and C<\r> respectively, and other control
+  characters are replaced with C<\u{....}> where the contents of the braces are
+  the hex value of the control character
 
 When values are undef, they are represented as C<~>.
 
@@ -441,6 +444,18 @@ lazy.  Don't push the limits.
 
 # ASCII after SPACE but excluding = and "
 my $IDENT_RE = qr{\A[\x21\x23-\x3C\x3E-\x7E]+\z};
+
+sub _quote_string {
+  my ($string) = @_;
+
+  $string =~ s{\\}{\\\\}g;
+  $string =~ s{"}{\\"}g;
+  $string =~ s{\x0A}{\\n}g;
+  $string =~ s{\x0D}{\\r}g;
+  $string =~ s{(\pC)}{sprintf '\\u{%x}', ord $1}ge;
+
+  return qq{"$string"};
+}
 
 sub _pairs_to_kvstr_aref {
   my ($self, $aref, $seen, $prefix) = @_;
@@ -496,7 +511,7 @@ sub _pairs_to_kvstr_aref {
     my $str = "$key="
             . ($value =~ $IDENT_RE
                ? "$value"
-               : (q{"} . ($value =~ s{\\}{\\\\}gr =~ s{"}{\\"}gr) .  q{"}));
+               : _quote_string($value));
 
     push @kvstrs, $str;
   }
