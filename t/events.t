@@ -187,6 +187,68 @@ subtest "recursive structure" => sub {
   );
 };
 
+subtest "lazy values" => sub {
+  my ($logger) = logger_trio();
+
+  my $called = 0;
+  my $callback = sub { $called++; return 'X' };
+
+  $logger->log_event('sub-caller' => [
+    once  => $callback,
+    twice => $callback,
+  ]);
+
+  $logger->log_debug_event('sub-caller' => [
+    d_once  => $callback,
+    d_twice => $callback,
+  ]);
+
+  messages_ok(
+    $logger,
+    [
+      'event=sub-caller once=X twice=X',
+    ],
+    "we call sublike arguments to lazily compute",
+  );
+
+  is($called, 2, "only called twice; debug events did not call sub");
+};
+
+subtest "lazy values in proxy context" => sub {
+  my ($logger) = logger_trio();
+
+  my $called_A = 0;
+  my $callback_A = sub { $called_A++; return 'X' };
+
+  my $called_B = 0;
+  my $callback_B = sub { $called_B++; return 'X' };
+
+  my $proxy1 = $logger->proxy({ proxy_ctx => [ inner => $callback_A ] });
+  my $proxy2 = $proxy1->proxy({ proxy_ctx => [ outer => $callback_B ] });
+
+  $proxy1->log_event('inner-event' => [ guitar => 'electric' ]);
+
+  is($called_A, 1, "inner proxy did log, called inner callback");
+  is($called_B, 0, "inner proxy did log, didn't call outer callback");
+
+  $proxy2->log_event('outer-event' => [ mandolin => 'bluegrass' ]);
+
+  is($called_A, 1, "outer proxy did log, didn't re-call inner callback");
+  is($called_B, 1, "outer proxy did log, did call outer callback");
+
+  $proxy2->log_event('outer-second' => [ snare => 'infinite' ]);
+
+  messages_ok(
+    $logger,
+    [
+      'event=inner-event inner=X guitar=electric',
+      'event=outer-event inner=X outer=X mandolin=bluegrass',
+      'event=outer-second inner=X outer=X snare=infinite',
+    ],
+    "all our laziness didn't change our results",
+  );
+};
+
 subtest "reused JSON booleans" => sub {
   # It's not that this is extremely special, but we mostly don't want to
   # recurse into the same reference value multiple times, but we also don't
