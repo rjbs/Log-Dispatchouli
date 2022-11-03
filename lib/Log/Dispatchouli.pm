@@ -519,27 +519,31 @@ sub _pairs_to_kvstr_aref {
   return \@kvstrs;
 }
 
-sub _format_event {
-  my ($self, $aref) = @_;
-
-  my $kvstr_aref = $self->_pairs_to_kvstr_aref($aref, {}, undef);
-
-  return join q{ }, @$kvstr_aref;
-}
-
 sub log_event {
   my ($self, $type, $data) = @_;
 
+  return $self->_log_event($type, undef, $data);
+}
+
+sub _compute_proxy_ctx_kvstr_aref {
+  return [];
+}
+
+sub _log_event {
+  my ($self, $type, $ctx, $data) = @_;
+
   return if $self->get_muted;
 
-  my $message = $self->_format_event([
+  my $kv_aref = $self->_pairs_to_kvstr_aref([
     event => $type,
     (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
   ]);
 
+  splice @$kv_aref, 1, 0, @$ctx if $ctx;
+
   $self->dispatcher->log(
     level   => 'info',
-    message => $message,
+    message => join q{ }, @$kv_aref,
   );
 
   return;

@@ -44,7 +44,7 @@ sub proxy  {
   my ($self, $arg) = @_;
   $arg ||= {};
 
-  my @proxy_ctx = ($self->{proxy_ctx} // [])->@*;
+  my @proxy_ctx;
 
   if (my $ctx = $arg->{proxy_ctx}) {
     @proxy_ctx = _ARRAY0($ctx)
@@ -136,27 +136,39 @@ sub log_debug {
   $self->log($arg, @rest);
 }
 
+sub _compute_proxy_ctx_kvstr_aref {
+  my ($self) = @_;
+
+  return $self->{proxy_ctx_kvstr} //= do {
+    my @kvstr = $self->parent->_compute_proxy_ctx_kvstr_aref->@*;
+
+    if ($self->{proxy_ctx}) {
+      my $our_kv = $self->logger->_pairs_to_kvstr_aref($self->{proxy_ctx});
+      push @kvstr, @$our_kv;
+    }
+
+    \@kvstr;
+  };
+}
+
 sub log_event {
   my ($self, $event, $data) = @_;
 
   return if $self->get_muted;
 
-  my $message = $self->logger->log_event($event, [
-    ($self->{proxy_ctx} ? $self->{proxy_ctx}->@* : ()),
-    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
-  ]);
+
+  my $message = $self->logger->_log_event($event,
+    $self->_compute_proxy_ctx_kvstr_aref,
+    [ _ARRAY0($data) ? @$data : $data->%{ sort keys %$data } ]
+  );
 }
 
 sub log_debug_event {
   my ($self, $event, $data) = @_;
 
-  return if $self->get_muted;
   return unless $self->get_debug;
 
-  $self->logger->log_event($event, [
-    ($self->{proxy_ctx} ? $self->{proxy_ctx}->@* : ()),
-    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
-  ]);
+  return $self->log_event($event, $data);
 }
 
 sub info  { shift()->log(@_); }
