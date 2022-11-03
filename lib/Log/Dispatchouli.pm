@@ -440,6 +440,10 @@ like C<&foo.bar>, pointing to the first occurrence.  I<This is not meant to be
 a robust serialization mechanism.>  It's just here to help you be a little
 lazy.  Don't push the limits.
 
+If the value in C<$data_ref> is a code reference, it will be called and its
+result logged.  If its result is also a code reference, you get whatever
+garbage that code reference stringifies to.
+
 =cut
 
 # ASCII after SPACE but excluding = and "
@@ -804,9 +808,7 @@ cannot be changed.
 = proxy_ctx
 This is data to be inserted in front of event data logged through the proxy.
 It will appear I<after> the C<event> key but before the logged event data.  It
-can be in the same format as the C<$data_ref> argument to C<log_event>.  At
-present, the context data is expanded on every logged event, but don't rely on
-this, it may be optimized, in the future, to only be computed once.
+can be in the same format as the C<$data_ref> argument to C<log_event>.
 = debug
 This can be set to true or false to change the proxy's "am I in debug mode?"
 setting.  It can be changed or cleared later on the proxy.
