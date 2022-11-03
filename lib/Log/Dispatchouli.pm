@@ -476,6 +476,10 @@ sub _pairs_to_kvstr_aref {
 
     my $value = $aref->[$i+1];
 
+    if (_CODELIKE $value) {
+      $value = $value->();
+    }
+
     if (! defined $value) {
       $value = '~missing~';
     } elsif (ref $value) {
