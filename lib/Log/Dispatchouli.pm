@@ -447,7 +447,7 @@ garbage that code reference stringifies to.
 =cut
 
 # ASCII after SPACE but excluding = and "
-my $IDENT_RE = qr{\A[\x21\x23-\x3C\x3E-\x7E]+\z};
+my $IDENT_RE = qr{[\x21\x23-\x3C\x3E-\x7E]+};
 
 sub _quote_string {
   my ($string) = @_;
@@ -517,7 +517,7 @@ sub _pairs_to_kvstr_aref {
     }
 
     my $str = "$key="
-            . ($value =~ $IDENT_RE
+            . ($value =~ /\A$IDENT_RE\z/
                ? "$value"
                : _quote_string($value));
 
@@ -525,6 +525,50 @@ sub _pairs_to_kvstr_aref {
   }
 
   return \@kvstrs;
+}
+
+sub _parse_event_string {
+  my ($self, $string) = @_;
+
+  my @result;
+
+  HUNK: while (length $string) {
+    if ($string =~ s/\A($IDENT_RE)=($IDENT_RE)(?:\s+|\z)//) {
+      push @result, $1, $2;
+      next HUNK;
+    }
+
+    if ($string =~ s/\A($IDENT_RE)="((\\\\|\\"|[^"])*?)"(?:\s+|\z)//) {
+      my $key = $1;
+      my $qstring = $2;
+
+      $qstring =~ s{
+        ( \\\\ | \\["nr] | (\\x)\{([[:xdigit:]]{1,5})\} | . )
+      }
+      {
+          $1 eq "\\\\"        ? "\\"
+        : $1 eq "\\\""        ? q{"}
+        : $1 eq "\\n"         ? qq{\n}
+        : $1 eq "\\r"         ? qq{\r}
+        : ($2//'') eq "\\x"   ? chr(hex("0x$3"))
+        :                       $1
+      }gex;
+
+      push @result, $key, $qstring; # TODO: do unescaping here
+      next HUNK;
+    }
+
+    if ($string =~ s/\A(\S+)(?:\s+|\z)//) {
+      push @result, 'junk', $1;
+      next HUNK;
+    }
+
+    # I hope this is unreachable. -- rjbs, 2022-11-03
+    push (@result, 'junk', $string, aborted => 1);
+    last HUNK;
+  }
+
+  return \@result;
 }
 
 sub log_event {

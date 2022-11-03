@@ -45,6 +45,20 @@ sub messages_ok {
   return $ok;
 }
 
+sub parse_event_ok {
+  my ($event_string, $expect, $desc) = @_;
+
+  local $Test::Builder::Level = $Test::Builder::Level+1;
+
+  my $result = Log::Dispatchouli->_parse_event_string($event_string);
+
+  cmp_deeply(
+    $result,
+    $expect,
+    $desc,
+  ) or note explain $result;
+}
+
 sub logger_trio {
   my $logger = Log::Dispatchouli->new_tester({
     log_pid => 0,
@@ -64,6 +78,18 @@ subtest "very basic stuff" => sub {
     "basic data with an arrayref value",
   );
 
+  parse_event_ok(
+    'event=world-series phl=1 hou=0 games.0=done games.1=in-progress',
+    [
+      event => 'world-series',
+      phl => 1,
+      hou => 0,
+      'games.0' => 'done',
+      'games.1' => 'in-progress',
+    ],
+    'we can parse something we produced'
+  );
+
   event_logs_ok(
     'programmer-sleepiness' => {
       weary   => 8.62,
@@ -72,6 +98,17 @@ subtest "very basic stuff" => sub {
     },
     'event=programmer-sleepiness excited=3.2 motto="Never say \\"never\\" ever again." weary=8.62',
     "basic data as a hashref",
+  );
+
+  parse_event_ok(
+    'event=programmer-sleepiness excited=3.2 motto="Never say \\"never\\" ever again." weary=8.62',
+    [
+      event   => 'programmer-sleepiness',
+      excited => '3.2',
+      motto   => q{Never say "never" ever again.},
+      weary   => '8.62',
+    ],
+    "parse an event with simple quotes",
   );
 
   event_logs_ok(
@@ -110,6 +147,15 @@ subtest "very basic stuff" => sub {
     ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
     'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{200d} \\\\nothing ë"',
     'control characters and otherwise',
+  );
+
+  parse_event_ok(
+    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{200d} \\\\nothing ë"',
+    [
+      event   => 'ctrlctl',
+      string  => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë},
+    ],
+    "parse an event with simple quotes",
   );
 
   event_logs_ok(
