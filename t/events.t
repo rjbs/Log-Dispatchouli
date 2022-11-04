@@ -50,7 +50,7 @@ sub parse_event_ok {
 
   local $Test::Builder::Level = $Test::Builder::Level+1;
 
-  my $result = Log::Dispatchouli->_parse_event_string($event_string);
+  my $result = Log::Fmt->parse_event_string($event_string);
 
   cmp_deeply(
     $result,

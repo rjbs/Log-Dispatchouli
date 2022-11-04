@@ -6,6 +6,24 @@ package Log::Fmt;
 use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(refaddr);
 
+=head1 OVERVIEW
+
+This library primarily exists to service L<Log::Dispatchouli>'s C<log_event>
+methods.  It converts an arrayref of key/value pairs to a string that a human
+can scan tolerably well, and which a machine can parse about as well.  It can
+also do that tolerably-okay parsing for you.
+
+=cut
+
+=method format_event_string
+
+  my $string = Log::Fmt->format_event_string([
+    key1 => $value1,
+    key2 => $value2,
+  ]);
+
+=cut
+
 # ASCII after SPACE but excluding = and "
 my $IDENT_RE = qr{[\x21\x23-\x3C\x3E-\x7E]+};
 
@@ -92,6 +110,25 @@ sub format_event_string {
 
   return join q{ }, $self->_pairs_to_kvstr_aref($aref)->@*;
 }
+
+=method parse_event_string
+
+  my $kv_pairs = Log::Fmt->parse_event_string($string);
+
+Given the kind of string emitted by C<format_event_string>, this method returns
+a reference to an array of key/value pairs.
+
+This isn't exactly a round trip.  First off, the formatting can change illegal
+keys by replacing characters with question marks, or replacing empty strings
+with tildes.  Secondly, the formatter will expand some values like arrayrefs
+and hashrefs into multiple keys, but the parser will not recombined those keys
+into structures.  Also, there might be other asymmetric conversions.  That
+said, the string escaping done by the formatter should correctly reverse.
+
+If the input string is badly formed, hunks that don't appear to be value
+key/value pairs will be presented as values for the key C<junk>.
+
+=cut
 
 sub parse_event_string {
   my ($self, $string) = @_;
