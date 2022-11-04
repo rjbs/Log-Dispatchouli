@@ -163,6 +163,15 @@ subtest "very basic stuff" => sub {
     'event=spacey string="line \x{2028} spacer"',
     'non-control non-ascii vertical whitespace is also escaped',
   );
+
+  parse_event_ok(
+    'event=spacey string="line \x{2028} spacer"',
+    [
+      event   => 'spacey',
+      string  => qq{line \x{2028} spacer}
+    ],
+    "parse an that has an escaped vertical whitespace cahracter",
+  );
 };
 
 subtest "very basic proxy operation" => sub {
