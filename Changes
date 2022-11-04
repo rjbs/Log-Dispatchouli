@@ -2,7 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
         - Log::Dispatchouli now requires v5.20, for pair slices
-        - structured event logging with ->log_event -- read the docs!
+        - structured event logging with ->log_event -- read the docs, and Log::Fmt
 
 2.023     2021-06-18 21:52:17-04:00 America/New_York
         - update author contact info
