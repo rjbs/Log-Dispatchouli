@@ -1,8 +1,9 @@
-use strict;
+use v5.20;
 use warnings;
 package Log::Dispatchouli::Proxy;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
+use Log::Fmt ();
 use Params::Util qw(_ARRAY0 _HASH0);
 
 =head1 DESCRIPTION
@@ -34,6 +35,7 @@ sub _new {
     logger => $arg->{logger},
     debug  => $arg->{debug},
     proxy_prefix => $arg->{proxy_prefix},
+    proxy_ctx    => $arg->{proxy_ctx},
   };
 
   bless $guts => $class;
@@ -43,12 +45,21 @@ sub proxy  {
   my ($self, $arg) = @_;
   $arg ||= {};
 
-  (ref $self)->_new({
+  my @proxy_ctx;
+
+  if (my $ctx = $arg->{proxy_ctx}) {
+    @proxy_ctx = _ARRAY0($ctx)
+               ? (@proxy_ctx, @$ctx)
+               : (@proxy_ctx, $ctx->%{ sort keys %$ctx });
+  }
+
+  my $prox = (ref $self)->_new({
     parent => $self,
     logger => $self->logger,
     debug  => $arg->{debug},
     muted  => $arg->{muted},
     proxy_prefix => $arg->{proxy_prefix},
+    proxy_ctx    => \@proxy_ctx,
   });
 }
 
@@ -124,6 +135,41 @@ sub log_debug {
   local $arg->{level} = 'debug';
 
   $self->log($arg, @rest);
+}
+
+sub _compute_proxy_ctx_kvstr_aref {
+  my ($self) = @_;
+
+  return $self->{proxy_ctx_kvstr} //= do {
+    my @kvstr = $self->parent->_compute_proxy_ctx_kvstr_aref->@*;
+
+    if ($self->{proxy_ctx}) {
+      my $our_kv = Log::Fmt->_pairs_to_kvstr_aref($self->{proxy_ctx});
+      push @kvstr, @$our_kv;
+    }
+
+    \@kvstr;
+  };
+}
+
+sub log_event {
+  my ($self, $event, $data) = @_;
+
+  return if $self->get_muted;
+
+
+  my $message = $self->logger->_log_event($event,
+    $self->_compute_proxy_ctx_kvstr_aref,
+    [ _ARRAY0($data) ? @$data : $data->%{ sort keys %$data } ]
+  );
+}
+
+sub log_debug_event {
+  my ($self, $event, $data) = @_;
+
+  return unless $self->get_debug;
+
+  return $self->log_event($event, $data);
 }
 
 sub info  { shift()->log(@_); }

@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+3.000     2022-11-03 21:29:21-04:00 America/New_York (TRIAL RELEASE)
+        - Log::Dispatchouli now requires v5.20, for pair slices
+        - structured event logging with ->log_event -- read the docs, and Log::Fmt
+
 2.023     2021-06-18 21:52:17-04:00 America/New_York
         - update author contact info
         - add perl-support section

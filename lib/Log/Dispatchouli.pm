@@ -1,4 +1,4 @@
-use strict;
+use v5.20;
 use warnings;
 package Log::Dispatchouli;
 # ABSTRACT: a simple wrapper around Log::Dispatch
@@ -6,6 +6,7 @@ package Log::Dispatchouli;
 use Carp ();
 use File::Spec ();
 use Log::Dispatch;
+use Log::Fmt ();
 use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(blessed weaken);
 use String::Flogger;
@@ -383,6 +384,114 @@ sub log_debug {
   $self->log($arg, @rest);
 }
 
+=method log_event
+
+This method is like C<log>, but is used for structured logging instead of free
+form text.  It's invoked like this:
+
+  $logger->log($event_type => $data_ref);
+
+C<$event_type> should be a simple string, probably a valid identifier, that
+identifies the kind of event being logged.  It is suggested, but not required,
+that all events of the same type have the same kind of structured data in them.
+
+C<$data_ref> is a set of key/value pairs of data to log in this event.  It can
+be an arrayref (in which case the ordering of pairs is preserved) or a hashref
+(in which case they are sorted by key).
+
+The logged string will be in logfmt format, meaning a series of key=value
+pairs separated by spaces and following these rules:
+
+=for :list
+* an "identifier" is a string of printable ASCII characters between C<!> and
+  C<~>, excluding C<\> and C<=>
+* keys must be valid identifiers
+* if a key is empty, C<~> is used instead
+* if a key contains characters not permitted in an identifier, they are
+  replaced by C<?>
+* values must I<either> be valid identifiers, or be quoted
+* quoted value start and end with C<">
+* in a quoted value, C<"> becomes C<\">, C<\> becomes C<\\>, newline and
+  carriage return become C<\n> and C<\r> respectively, and other control
+  characters are replaced with C<\u{....}> where the contents of the braces are
+  the hex value of the control character
+
+When values are undef, they are represented as C<~>.
+
+When values are array references, the index/values are mapped over, so that:
+
+  key => [ 'a', 'b' ]
+
+becomes
+
+  key.0=a key.1=b
+
+When values are hash references, the key/values are mapped, with keys sorted,
+so that:
+
+  key => { b => 2, a => 1 }
+
+becomes
+
+  key.a=1 key.b=2
+
+This expansion is performed recursively.  If a value itself recurses,
+appearances of a reference after the first time will be replaced with a string
+like C<&foo.bar>, pointing to the first occurrence.  I<This is not meant to be
+a robust serialization mechanism.>  It's just here to help you be a little
+lazy.  Don't push the limits.
+
+If the value in C<$data_ref> is a code reference, it will be called and its
+result logged.  If its result is also a code reference, you get whatever
+garbage that code reference stringifies to.
+
+=cut
+
+sub log_event {
+  my ($self, $type, $data) = @_;
+
+  return $self->_log_event($type, undef, $data);
+}
+
+sub _compute_proxy_ctx_kvstr_aref {
+  return [];
+}
+
+sub _log_event {
+  my ($self, $type, $ctx, $data) = @_;
+
+  return if $self->get_muted;
+
+  my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
+    event => $type,
+    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
+  ]);
+
+  splice @$kv_aref, 1, 0, @$ctx if $ctx;
+
+  $self->dispatcher->log(
+    level   => 'info',
+    message => join q{ }, @$kv_aref,
+  );
+
+  return;
+}
+
+=method log_debug_event
+
+This method is just like C<log_event>, but will log nothing unless the logger
+has its C<debug> property set to true.
+
+=cut
+
+sub log_debug_event {
+  my ($self, $type, $data) = @_;
+
+  return unless $self->get_debug;
+
+  $self->log_event($type, $data);
+}
+
 =method set_debug
 
   $logger->set_debug($bool);
@@ -616,6 +725,10 @@ C<%arg> is optional.  It may contain the following entries:
 = proxy_prefix
 This is a prefix that will be applied to anything the proxy logger logs, and
 cannot be changed.
+= proxy_ctx
+This is data to be inserted in front of event data logged through the proxy.
+It will appear I<after> the C<event> key but before the logged event data.  It
+can be in the same format as the C<$data_ref> argument to C<log_event>.
 = debug
 This can be set to true or false to change the proxy's "am I in debug mode?"
 setting.  It can be changed or cleared later on the proxy.
@@ -630,12 +743,20 @@ sub proxy {
   my ($self, $arg) = @_;
   $arg ||= {};
 
-  $self->proxy_class->_new({
+  my $proxy = $self->proxy_class->_new({
     parent => $self,
     logger => $self,
     proxy_prefix => $arg->{proxy_prefix},
     (exists $arg->{debug} ? (debug => ($arg->{debug} ? 1 : 0)) : ()),
   });
+
+  if (my $ctx = $arg->{proxy_ctx}) {
+    $proxy->{proxy_ctx} = _ARRAY0($ctx)
+                        ? [ @$ctx ]
+                        : [ $ctx->%{ sort keys %$ctx } ];
+  }
+
+  return $proxy;
 }
 
 =head2 parent
