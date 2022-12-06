@@ -3,6 +3,8 @@ use warnings;
 package Log::Dispatchouli;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
+use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
+
 use Carp ();
 use File::Spec ();
 use Log::Dispatch;

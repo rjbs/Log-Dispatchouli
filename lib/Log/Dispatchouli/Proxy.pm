@@ -3,6 +3,8 @@ use warnings;
 package Log::Dispatchouli::Proxy;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
+use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
+
 use Log::Fmt ();
 use Params::Util qw(_ARRAY0 _HASH0);
 
