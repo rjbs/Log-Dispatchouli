@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - Log::Fmt will now flog ref-refs, meaning you can easily log JSON as
+          log event values
 
 3.002     2022-12-06 09:49:34-05:00 America/New_York
         - restore v5.20 compatibility by turning on "postderef" feature

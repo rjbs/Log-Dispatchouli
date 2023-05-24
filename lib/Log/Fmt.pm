@@ -24,6 +24,11 @@ also do that tolerably-okay parsing for you.
     key2 => $value2,
   ]);
 
+Note especially that if any value to encode is a reference I<to a reference>,
+then String::Flogger is used to encode the referenced value.  This means you
+can embed, in your logfmt, a JSON dump of a structure by passing a reference to
+the structure, instead of passing the structure itself.
+
 =cut
 
 # ASCII after SPACE but excluding = and "
@@ -40,6 +45,8 @@ sub _quote_string {
 
   return qq{"$string"};
 }
+
+sub string_flogger { 'String::Flogger' }
 
 sub _pairs_to_kvstr_aref {
   my ($self, $aref, $seen, $prefix) = @_;
@@ -65,7 +72,7 @@ sub _pairs_to_kvstr_aref {
     }
 
     if (ref $value && ref $value eq 'REF') {
-      $value = String::Flogger->flog($$value);
+      $value = $self->string_flogger->flog($$value);
     }
 
     if (! defined $value) {

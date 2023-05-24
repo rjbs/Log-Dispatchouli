@@ -447,6 +447,10 @@ If the value in C<$data_ref> is a code reference, it will be called and its
 result logged.  If its result is also a code reference, you get whatever
 garbage that code reference stringifies to.
 
+If the value in C<$data_ref> is a reference reference, then the referenced
+scalar will be passed to String::Flogger, and the resulting string will be used
+as the value to log.  That string will be quoted as described above, if needed.
+
 =cut
 
 sub log_event {
