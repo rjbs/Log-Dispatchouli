@@ -330,4 +330,44 @@ subtest "reused JSON booleans" => sub {
   );
 };
 
+subtest "JSON-ification of refrefs" => sub {
+  my ($logger, $proxy1, $proxy2) = logger_trio();
+
+  $logger->log_event('json-demo' => [
+    foo =>  { a => 1 },
+    bar => \{ a => 1 },
+  ]);
+
+  my @messages = map {; $_->{message} } $logger->events->@*;
+
+  messages_ok(
+    $logger,
+    [
+      'event=json-demo foo.a=1 bar="{{{\"a\": 1}}}"',
+    ],
+    "refref becomes JSON flogged",
+  );
+
+  my $result = Log::Fmt->parse_event_string($messages[0]);
+
+  cmp_deeply(
+    $result,
+    [
+      event   => 'json-demo',
+      'foo.a' => 1,
+      bar     => re(qr/\A\{\{.+\}\}\z/),
+    ],
+    "parsing gets us JSON string out, because it is just strings",
+  );
+
+  my ($json_string) = $result->[5] =~ /\A\{\{(.+)\}\}\z/;
+  my $json_struct = decode_json($json_string);
+
+  cmp_deeply(
+    $json_struct,
+    { a => 1 },
+    "we can round trip that JSON",
+  );
+};
+
 done_testing;

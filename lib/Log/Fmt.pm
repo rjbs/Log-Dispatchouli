@@ -64,6 +64,10 @@ sub _pairs_to_kvstr_aref {
       $value = $value->();
     }
 
+    if (ref $value && ref $value eq 'REF') {
+      $value = String::Flogger->flog($$value);
+    }
+
     if (! defined $value) {
       $value = '~missing~';
     } elsif (ref $value) {
