@@ -159,7 +159,7 @@ sub parse_event_string {
       my $qstring = $2;
 
       $qstring =~ s{
-        ( \\\\ | \\["nr] | (\\x)\{([[:xdigit:]]{1,5})\} | . )
+        ( \\\\ | \\["nr] | (\\x)\{([[:xdigit:]]{1,5})\} )
       }
       {
           $1 eq "\\\\"        ? "\\"
