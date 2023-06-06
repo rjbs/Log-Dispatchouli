@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.004     2023-06-05 21:26:03-04:00 America/New_York
         - optimization to parsing of quoted strings (thanks, Rob Mueller)
 
 3.003     2023-06-05 08:10:52-04:00 America/New_York
