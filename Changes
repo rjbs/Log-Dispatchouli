@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - optimization to parsing of quoted strings (thanks, Rob Mueller)
 
 3.003     2023-06-05 08:10:52-04:00 America/New_York
         - Log::Fmt will now flog ref-refs, meaning you can easily log JSON as
