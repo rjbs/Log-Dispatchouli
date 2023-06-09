@@ -187,4 +187,23 @@ sub parse_event_string {
   return \@result;
 }
 
+=method parse_event_string_as_hash
+
+    my $hashref = Log::Fmt->parse_event_string_as_hash($line);
+
+This parses the given line as logfmt, then puts the key/value pairs into a hash
+and returns a reference to it.
+
+Because nothing prevents a single key from appearing more than once, you should
+use this with the understanding that data could be lost.  No guarantee is made
+of which value will be preserved.
+
+=cut
+
+sub parse_event_string_as_hash {
+  my ($self, $string) = @_;
+
+  return { $self->parse_event_string($string)->@* };
+}
+
 1;

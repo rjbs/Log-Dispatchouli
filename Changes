@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - add parse_event_string_as_hash, which loses duplicate k/v pairs
+          but makes life a little easier
 
 3.004     2023-06-05 21:26:03-04:00 America/New_York
         - optimization to parsing of quoted strings (thanks, Rob Mueller)

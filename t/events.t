@@ -102,6 +102,22 @@ subtest "very basic stuff" => sub {
     "basic data as a hashref",
   );
 
+  {
+    my %kv = (
+      weary   => 8.62,
+      excited => 3.2,
+      motto   => q{Never say "never" ever again.},
+    );
+
+    my $line = Log::Fmt->format_event_string([%kv]);
+
+    cmp_deeply(
+      Log::Fmt->parse_event_string_as_hash($line),
+      \%kv,
+      "parse_event_string_as_hash works",
+    );
+  }
+
   parse_event_ok(
     'event=programmer-sleepiness excited=3.2 motto="Never say \\"never\\" ever again." weary=8.62',
     [
