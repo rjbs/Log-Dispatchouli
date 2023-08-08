@@ -67,8 +67,8 @@ sub logger_trio {
     ident   => 't/basic.t',
   });
 
-  my $proxy1 = $logger->proxy({ proxy_ctx => { 'inner' => 'proxy' } });
-  my $proxy2 = $proxy1->proxy({ proxy_ctx => { 'outer' => 'proxy' } });
+  my $proxy1 = $logger->proxy({ proxy_ctx => { 'outer' => 'proxy' } });
+  my $proxy2 = $proxy1->proxy({ proxy_ctx => { 'inner' => 'proxy' } });
 
   return ($logger, $proxy1, $proxy2);
 }
@@ -203,7 +203,7 @@ subtest "very basic proxy operation" => sub {
   messages_ok(
     $logger,
     [
-      'event=pie_picnic inner=proxy outer=proxy pies_eaten=1.2 joy_harvested=6'
+      'event=pie_picnic outer=proxy inner=proxy pies_eaten=1.2 joy_harvested=6'
     ],
     'got the expected log output from events',
   );
@@ -228,11 +228,11 @@ subtest "debugging in the proxies" => sub {
     $logger,
     [
       # 'event=0 seq=0',                          # not logged, debugging
-      'event=1 inner=proxy seq=1',
-      'event=2 inner=proxy outer=proxy seq=2',
+      'event=1 outer=proxy seq=1',
+      'event=2 outer=proxy inner=proxy seq=2',
       # 'event=0 seq=3',                          # not logged, debugging
-      'event=1 inner=proxy seq=4',
-      # 'event=2 inner=proxy outer=proxy seq=5',  # not logged, debugging
+      'event=1 outer=proxy seq=4',
+      # 'event=2 outer=proxy inner=proxy seq=5',  # not logged, debugging
     ],
     'got the expected log output from events',
   );
@@ -296,27 +296,27 @@ subtest "lazy values in proxy context" => sub {
   my $called_B = 0;
   my $callback_B = sub { $called_B++; return 'X' };
 
-  my $proxy1 = $logger->proxy({ proxy_ctx => [ inner => $callback_A ] });
-  my $proxy2 = $proxy1->proxy({ proxy_ctx => [ outer => $callback_B ] });
+  my $proxy1 = $logger->proxy({ proxy_ctx => [ outer => $callback_A ] });
+  my $proxy2 = $proxy1->proxy({ proxy_ctx => [ inner => $callback_B ] });
 
-  $proxy1->log_event('inner-event' => [ guitar => 'electric' ]);
+  $proxy1->log_event('outer-event' => [ guitar => 'electric' ]);
 
-  is($called_A, 1, "inner proxy did log, called inner callback");
-  is($called_B, 0, "inner proxy did log, didn't call outer callback");
+  is($called_A, 1, "outer proxy did log, called outer callback");
+  is($called_B, 0, "outer proxy did log, didn't call inner callback");
 
-  $proxy2->log_event('outer-event' => [ mandolin => 'bluegrass' ]);
+  $proxy2->log_event('inner-event' => [ mandolin => 'bluegrass' ]);
 
-  is($called_A, 1, "outer proxy did log, didn't re-call inner callback");
-  is($called_B, 1, "outer proxy did log, did call outer callback");
+  is($called_A, 1, "inner proxy did log, didn't re-call outer callback");
+  is($called_B, 1, "inner proxy did log, did call inner callback");
 
-  $proxy2->log_event('outer-second' => [ snare => 'infinite' ]);
+  $proxy2->log_event('inner-second' => [ snare => 'infinite' ]);
 
   messages_ok(
     $logger,
     [
-      'event=inner-event inner=X guitar=electric',
-      'event=outer-event inner=X outer=X mandolin=bluegrass',
-      'event=outer-second inner=X outer=X snare=infinite',
+      'event=outer-event outer=X guitar=electric',
+      'event=inner-event outer=X inner=X mandolin=bluegrass',
+      'event=inner-second outer=X inner=X snare=infinite',
     ],
     "all our laziness didn't change our results",
   );
