@@ -352,6 +352,7 @@ subtest "JSON-ification of refrefs" => sub {
   $logger->log_event('json-demo' => [
     foo =>  { a => 1 },
     bar => \{ a => 1 },
+    baz => \[ 12, 34 ],
   ]);
 
   my @messages = map {; $_->{message} } $logger->events->@*;
@@ -359,7 +360,7 @@ subtest "JSON-ification of refrefs" => sub {
   messages_ok(
     $logger,
     [
-      'event=json-demo foo.a=1 bar="{{{\"a\": 1}}}"',
+      'event=json-demo foo.a=1 bar="{{{\"a\": 1}}}" baz="{{[12, 34]}}"',
     ],
     "refref becomes JSON flogged",
   );
@@ -371,7 +372,8 @@ subtest "JSON-ification of refrefs" => sub {
     [
       event   => 'json-demo',
       'foo.a' => 1,
-      bar     => re(qr/\A\{\{.+\}\}\z/),
+      bar     => "{{{\"a\": 1}}}",
+      baz     => "{{[12, 34]}}",
     ],
     "parsing gets us JSON string out, because it is just strings",
   );

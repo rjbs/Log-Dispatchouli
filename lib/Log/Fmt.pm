@@ -72,7 +72,7 @@ sub _pairs_to_kvstr_aref {
     }
 
     if (ref $value && ref $value eq 'REF') {
-      $value = $self->string_flogger->flog($$value);
+      $value = $self->string_flogger->flog([ '%s', $$value ]);
     }
 
     if (! defined $value) {
