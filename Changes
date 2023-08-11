@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.006     2023-08-11 10:58:09-04:00 America/New_York
         - fix a bug in Log::Fmt where an event data value that was a reference
           to a reference to an array was logged as its 0th element, not a
           flogged array reference
