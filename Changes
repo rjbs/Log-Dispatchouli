@@ -3,6 +3,8 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
         - add the is_X methods to Proxy as they were on the root logger
           (thanks, Charlie Garrison)
+        - in Log::Fmt tests, cope with the slightly different output of
+          JSON::PP versus the XS implementations
 
 3.006     2023-08-11 10:58:09-04:00 America/New_York
         - fix a bug in Log::Fmt where an event data value that was a reference
