@@ -7,6 +7,7 @@ use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
 
 use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(refaddr);
+use String::Flogger ();
 
 =head1 OVERVIEW
 
