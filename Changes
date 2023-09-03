@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.007     2023-09-02 20:18:04-04:00 America/New_York
         - add the is_X methods to Proxy as they were on the root logger
           (thanks, Charlie Garrison)
         - in Log::Fmt tests, cope with the slightly different output of
