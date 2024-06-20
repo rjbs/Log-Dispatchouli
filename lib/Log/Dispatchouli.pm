@@ -198,11 +198,15 @@ sub new {
   }
 
   if ($arg->{facility} and not $self->env_value('NOSYSLOG')) {
-    $self->setup_syslog_output(
+    $self->{syslog} = $self->build_syslog_output(
       facility  => $arg->{facility},
       socket    => $arg->{syslog_socket},
       ident     => $ident,
     );
+
+    # Maybe someday we will enabling this optional, but for now "initialize, do
+    # not log, disable, later enable" seems okay. -- rjbs, 2021-03-31
+    $self->enable_syslog;
   }
 
   if ($arg->{to_self}) {
@@ -264,24 +268,43 @@ for my $dest (qw(out err)) {
   *{"enable_std$dest"} = $code;
 }
 
-sub setup_syslog_output {
+sub build_syslog_output {
   my ($self, %arg) = @_;
 
   require Log::Dispatch::Syslog;
-  $self->{dispatcher}->add(
-    Log::Dispatch::Syslog->new(
-      name      => 'syslog',
-      min_level => 'debug',
-      facility  => $arg{facility},
-      ident     => $arg{ident},
-      logopt    => ($self->{log_pid} ? 'pid' : ''),
-      socket    => $arg{socket} || 'native',
-      callbacks => sub {
-        ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
-        $m
-      },
-    ),
+  return Log::Dispatch::Syslog->new(
+    name      => 'syslog',
+    min_level => 'debug',
+    facility  => $arg{facility},
+    ident     => $arg{ident},
+    logopt    => ($self->{log_pid} ? 'pid' : ''),
+    socket    => $arg{socket} || 'native',
+    callbacks => sub {
+      ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;
+      $m
+    },
   );
+}
+
+sub enable_syslog {
+  my ($self) = @_;
+
+  return if $self->{dispatcher}->output('syslog');
+
+  Carp::confess("attempt to enable syslog but syslogging was never configured")
+    unless $self->{syslog};
+
+  $self->{dispatcher}->add($self->{syslog});
+
+  return;
+}
+
+sub disable_syslog {
+  my ($self) = @_;
+
+  $self->{dispatcher}->remove('syslog');
+
+  return;
 }
 
 =method log
