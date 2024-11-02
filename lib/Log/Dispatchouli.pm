@@ -3,7 +3,8 @@ use warnings;
 package Log::Dispatchouli;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
-use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
+# Not dangerous.  Accepted without change.
+use experimental 'postderef', 'signatures';
 
 use Carp ();
 use File::Spec ();
@@ -117,7 +118,10 @@ Valid arguments are:
   file_format - this optional coderef is passed the message to be logged
                 and returns the text to write out
 
-  log_pid     - if true, prefix all log entries with the pid; default: true
+  log_pid     - if 1, prefix all log entries with the pid; default: true
+                can also be a comma-delimited list of log targets where pid is
+                logged, like "stderr,syslog"; mostly useful for logging pid in
+                syslog, but not on standard I/O
   fail_fatal  - a boolean; if true, failure to log is fatal; default: true
   muted       - a boolean; if true, only fatals are logged; default: false
   debug       - a boolean; if true, log_debug method is not a no-op
@@ -177,10 +181,12 @@ sub new {
         filename  => $log_file,
         mode      => 'append',
         callbacks => do {
+          my $log_pid = $self->log_pid_for('file');
+
           if (my $format = $arg->{file_format}) {
             sub {
               my $message = {@_}->{message};
-              $message = "[$$] $message" if $self->{log_pid};
+              $message = "[$$] $message" if $log_pid;
               $format->($message)
             };
           } else {
@@ -188,7 +194,7 @@ sub new {
             # 2008-11-21
             sub {
               my $message = {@_}->{message};
-              $message = "[$$] $message" if $self->{log_pid};
+              $message = "[$$] $message" if $log_pid;
               (localtime) . " $message\n";
             };
           }
@@ -213,8 +219,9 @@ sub new {
         name      => 'self',
         min_level => 'debug',
         array     => $self->{events},
-        ($self->{log_pid} ? (callbacks => sub { "[$$] ". {@_}->{message} })
-                          : ())
+        ($self->log_pid_for('self')
+          ? (callbacks => sub { "[$$] ". {@_}->{message} })
+          : ())
       ),
     );
   }
@@ -241,21 +248,33 @@ sub new {
   return $self;
 }
 
+sub log_pid_for ($self, $output) {
+  my $log_pid = $self->{log_pid};
+  return undef unless $log_pid;
+
+  return 1 if $log_pid eq 1;
+
+  $self->{log_pid_for} = { map {; $_ => 1 } split /,/, $log_pid };
+
+  return $self->{log_pid_for}{$output} ? 1 : undef;
+}
+
 for my $dest (qw(out err)) {
   my $name = "std$dest";
-  my $code = sub {
-    return if $_[0]->dispatcher->output($name);
+  my $code = sub ($self) {
+    return if $self->dispatcher->output($name);
 
-    my $callback = $_[0]->{log_pid} ? sub { "[$$] " . ({@_}->{message}) . "\n" }
-                                    : sub {           ({@_}->{message}) . "\n" };
+    my $callback = $self->log_pid_for($name)
+                 ? sub { "[$$] " . ({@_}->{message}) . "\n" }
+                 : sub {           ({@_}->{message}) . "\n" };
 
-    $_[0]->dispatcher->add(
-      $_[0]->stdio_dispatcher_class->new(
+    $self->dispatcher->add(
+      $self->stdio_dispatcher_class->new(
         name      => "std$dest",
         min_level => 'debug',
         stderr    => ($dest eq 'err' ? 1 : 0),
         callbacks => $callback,
-        ($_[0]{quiet_fatal}{"std$dest"} ? (max_level => 'info') : ()),
+        ($self->{quiet_fatal}{"std$dest"} ? (max_level => 'info') : ()),
       ),
     );
   };
@@ -271,10 +290,10 @@ sub setup_syslog_output {
   $self->{dispatcher}->add(
     Log::Dispatch::Syslog->new(
       name      => 'syslog',
-      min_level => 'debug',
-      facility  => $arg{facility},
       ident     => $arg{ident},
-      logopt    => ($self->{log_pid} ? 'pid' : ''),
+      facility  => $arg{facility},
+      logopt    => ($self->log_pid_for('syslog') ? 'pid' : ''),
+      min_level => 'debug',
       socket    => $arg{socket} || 'native',
       callbacks => sub {
         ( my $m = {@_}->{message} ) =~ s/\n/<LF>/g;

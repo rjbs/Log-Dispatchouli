@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - log_pid can now be a comma-delimited list of outputs, which is most
+          likely useful for setting log_pid to "syslog" only
 
 3.007     2023-09-02 20:18:04-04:00 America/New_York
         - add the is_X methods to Proxy as they were on the root logger
