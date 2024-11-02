@@ -110,7 +110,8 @@ Valid arguments are:
   to_stderr   - log to STDERR; default: false
   facility    - to which syslog facility to send logs; default: none
 
-  to_file     - log to PROGRAM_NAME.YYYYMMDD in the log path; default: false
+  to_file     - DEPRECATED: this option will be removed in 2025
+                log to PROGRAM_NAME.YYYYMMDD in the log path; default: false
   log_file    - a leaf name for the file to log to with to_file
   log_path    - path in which to log to file; defaults to DISPATCHOULI_PATH
                 environment variable or, failing that, to your system's tmpdir
@@ -161,6 +162,8 @@ sub new {
   } => $class;
 
   if ($arg->{to_file}) {
+    Carp::carp("to_file argument for Log::Dispatchouli is deprecated and will be removed in late 2025");
+
     require Log::Dispatch::File;
     my $log_file = File::Spec->catfile(
       ($arg->{log_path} || $self->env_value('PATH') || File::Spec->tmpdir),
