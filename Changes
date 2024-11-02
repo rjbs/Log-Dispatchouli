@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.008     2024-11-02 16:59:01+00:00 Europe/London
         - log_pid can now be a comma-delimited list of outputs, which is most
           likely useful for setting log_pid to "syslog" only
         - mark "to_file" for removal, probably in Nov 2025
