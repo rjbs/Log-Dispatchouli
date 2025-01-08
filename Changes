@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.009     2025-01-07 21:22:25-05:00 America/New_York
         - added documentation of the enable_stdout and enable_stderr methods,
           added in 2.018
 
