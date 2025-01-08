@@ -262,6 +262,17 @@ sub log_pid_for ($self, $output) {
   return $self->{log_pid_for}{$output} ? 1 : undef;
 }
 
+=method enable_stdout
+
+=method enable_stderr
+
+These methods turn on logging to STDOUT or STDERR, respectively.  If that
+logging has already been enabled, these methods do nothing.
+
+There is not, yet, a I<disable> version of these methods.
+
+=cut
+
 for my $dest (qw(out err)) {
   my $name = "std$dest";
   my $code = sub ($self) {
