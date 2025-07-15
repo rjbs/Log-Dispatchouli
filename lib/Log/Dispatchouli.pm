@@ -696,6 +696,24 @@ sub env_value {
   return;
 }
 
+=method flog_messages
+
+  my $str = $logger->flog_messages($m1, $m2, ...);
+
+This returns the string that would have been logged if the given arguments had
+been passed to C<< $logger->log(...) >>, without regard for log level,
+debugging, or the like.
+
+Unlike using the logger's string flogger, this will include any relevant prefix
+strings.
+
+=method fmt_event
+
+  my $str = $logger->fmt_event($event_type => $data_ref);
+
+This method is equivalent to C<flog_messages>, but for an event.  It returns
+the string format of the event, including all relevant prefixes.
+
 =head1 METHODS FOR TESTING
 
 =head2 new_tester
