@@ -333,7 +333,30 @@ generate a new message (if the prefix is a coderef).
 
 =cut
 
-sub _join { shift; join q{ }, @{ $_[0] } }
+sub _flog_messages ($self, $arg, $rest) {
+  my $flogger = $self->string_flogger;
+  my @flogged = map {; $flogger->flog($_) } @$rest;
+  my $message = @flogged > 1 ? join(q{ }, @flogged) : $flogged[0];
+
+  my @prefix  = _ARRAY0($arg->{prefix})
+              ? @{ $arg->{prefix} }
+              : $arg->{prefix};
+
+  for (reverse grep { defined } $self->get_prefix, @prefix) {
+    if (_CODELIKE( $_ )) {
+      $message = $_->($message);
+    } else {
+      $message =~ s/^/$_/gm;
+    }
+  }
+
+  return $message;
+}
+
+sub flog_messages ($self, @rest) {
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
+  return $self->_flog_messages($arg, \@rest);
+}
 
 sub log {
   my ($self, @rest) = @_;
@@ -343,21 +366,7 @@ sub log {
 
   if ($arg->{fatal} or ! $self->get_muted) {
     try {
-      my $flogger = $self->string_flogger;
-      my @flogged = map {; $flogger->flog($_) } @rest;
-      $message    = @flogged > 1 ? $self->_join(\@flogged) : $flogged[0];
-
-      my @prefix  = _ARRAY0($arg->{prefix})
-                  ? @{ $arg->{prefix} }
-                  : $arg->{prefix};
-
-      for (reverse grep { defined } $self->get_prefix, @prefix) {
-        if (_CODELIKE( $_ )) {
-          $message = $_->($message);
-        } else {
-          $message =~ s/^/$_/gm;
-        }
-      }
+      $message = $self->flog_messages($arg, @rest);
 
       $self->dispatcher->log(
         level   => $arg->{level} || 'info',
@@ -486,31 +495,29 @@ as the value to log.  That string will be quoted as described above, if needed.
 
 =cut
 
-sub log_event {
-  my ($self, $type, $data) = @_;
-
-  return $self->_log_event($type, undef, $data);
-}
-
 sub _compute_proxy_ctx_kvstr_aref {
   return [];
 }
 
-sub _log_event {
-  my ($self, $type, $ctx, $data) = @_;
-
-  return if $self->get_muted;
-
+sub fmt_event ($self, $type, $data) {
   my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
     event => $type,
     (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
   ]);
 
-  splice @$kv_aref, 1, 0, @$ctx if $ctx;
+  return join q{ }, @$kv_aref;
+}
+
+sub log_event {
+  my ($self, $type, $data) = @_;
+
+  return if $self->get_muted;
+
+  my $message = $self->fmt_event($type, $data);
 
   $self->dispatcher->log(
     level   => 'info',
-    message => join q{ }, @$kv_aref,
+    message => $message,
   );
 
   return;

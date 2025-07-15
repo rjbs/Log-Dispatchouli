@@ -111,6 +111,14 @@ sub _get_all_prefix {
   ];
 }
 
+sub flog_messages {
+  my ($self, @rest) = @_;
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
+  local $arg->{prefix} = $self->_get_all_prefix($arg);
+
+  $self->parent->flog_messages($arg, @rest);
+}
+
 sub log {
   my ($self, @rest) = @_;
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
@@ -158,15 +166,29 @@ sub _compute_proxy_ctx_kvstr_aref {
   };
 }
 
+sub fmt_event {
+  my ($self, $type, $data) = @_;
+
+  my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
+    event => $type,
+    (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
+  ]);
+
+  splice @$kv_aref, 1, 0, $self->_compute_proxy_ctx_kvstr_aref->@*;
+
+  return join q{ }, @$kv_aref;
+}
+
 sub log_event {
   my ($self, $event, $data) = @_;
 
   return if $self->get_muted;
 
+  my $message = $self->fmt_event($event, $data);
 
-  my $message = $self->logger->_log_event($event,
-    $self->_compute_proxy_ctx_kvstr_aref,
-    [ _ARRAY0($data) ? @$data : $data->%{ sort keys %$data } ]
+  $self->logger->dispatcher->log(
+    level   => 'info',
+    message => $message,
   );
 }
 
