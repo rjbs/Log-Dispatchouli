@@ -3,7 +3,8 @@ use warnings;
 package Log::Dispatchouli::Proxy;
 # ABSTRACT: a simple wrapper around Log::Dispatch
 
-use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
+# Not dangerous.  Accepted without change.
+use experimental 'postderef', 'signatures';
 
 use Log::Fmt ();
 use Params::Util qw(_ARRAY0 _HASH0);
@@ -29,9 +30,7 @@ Here are the differences:
 
 =cut
 
-sub _new {
-  my ($class, $arg) = @_;
-
+sub _new ($class, $arg) {
   my $guts = {
     parent => $arg->{parent},
     logger => $arg->{logger},
@@ -43,8 +42,7 @@ sub _new {
   bless $guts => $class;
 }
 
-sub proxy  {
-  my ($self, $arg) = @_;
+sub proxy ($self, $arg) {
   $arg ||= {};
 
   my @proxy_ctx;
@@ -101,9 +99,7 @@ sub get_muted {
   return $_[0]->parent->get_muted;
 }
 
-sub _get_all_prefix {
-  my ($self, $arg) = @_;
-
+sub _get_all_prefix ($self, $arg) {
   return [
     $self->{proxy_prefix},
     $self->get_prefix,
@@ -111,16 +107,14 @@ sub _get_all_prefix {
   ];
 }
 
-sub flog_messages {
-  my ($self, @rest) = @_;
+sub flog_messages ($self, @rest) {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
   local $arg->{prefix} = $self->_get_all_prefix($arg);
 
   $self->parent->flog_messages($arg, @rest);
 }
 
-sub log {
-  my ($self, @rest) = @_;
+sub log ($self, @rest) {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
 
   return if $self->_get_local_muted and ! $arg->{fatal};
@@ -130,18 +124,14 @@ sub log {
   $self->parent->log($arg, @rest);
 }
 
-sub log_fatal {
-  my ($self, @rest) = @_;
-
+sub log_fatal ($self, @rest) {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
   local $arg->{fatal}  = 1;
 
   $self->log($arg, @rest);
 }
 
-sub log_debug {
-  my ($self, @rest) = @_;
-
+sub log_debug ($self, @rest) {
   my $debug = $self->get_debug;
   return if defined $debug and ! $debug;
 
@@ -151,9 +141,7 @@ sub log_debug {
   $self->log($arg, @rest);
 }
 
-sub _compute_proxy_ctx_kvstr_aref {
-  my ($self) = @_;
-
+sub _compute_proxy_ctx_kvstr_aref ($self) {
   return $self->{proxy_ctx_kvstr} //= do {
     my @kvstr = $self->parent->_compute_proxy_ctx_kvstr_aref->@*;
 
@@ -166,9 +154,7 @@ sub _compute_proxy_ctx_kvstr_aref {
   };
 }
 
-sub fmt_event {
-  my ($self, $type, $data) = @_;
-
+sub fmt_event ($self, $type, $data) {
   my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
     event => $type,
     (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
@@ -179,9 +165,7 @@ sub fmt_event {
   return join q{ }, @$kv_aref;
 }
 
-sub log_event {
-  my ($self, $event, $data) = @_;
-
+sub log_event ($self, $event, $data) {
   return if $self->get_muted;
 
   my $message = $self->fmt_event($event, $data);
@@ -192,9 +176,7 @@ sub log_event {
   );
 }
 
-sub log_debug_event {
-  my ($self, $event, $data) = @_;
-
+sub log_debug_event ($self, $event, $data) {
   return unless $self->get_debug;
 
   return $self->log_event($event, $data);
