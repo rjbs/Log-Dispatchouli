@@ -4,6 +4,8 @@ use warnings;
 use Log::Dispatchouli;
 use Test::More 0.88;
 
+use experimental 'lexical_subs';
+
 {
   my $logger = Log::Dispatchouli->new_tester({
     ident => 't/proxy.t',
