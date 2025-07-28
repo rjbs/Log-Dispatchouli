@@ -139,8 +139,8 @@ If the F<DISPATCHOULI_NOSYSLOG> env var is true, we don't log to syslog.
 
 =cut
 
-sub new {
-  my ($class, $arg) = @_;
+sub new ($class, $arg = undef) {
+  $arg ||= {};
 
   my $ident = $arg->{ident}
     or Carp::croak "no ident specified when using $class";
@@ -297,9 +297,7 @@ for my $dest (qw(out err)) {
   *{"enable_std$dest"} = $code;
 }
 
-sub setup_syslog_output {
-  my ($self, %arg) = @_;
-
+sub setup_syslog_output ($self, %arg) {
   require Log::Dispatch::Syslog;
   $self->{dispatcher}->add(
     Log::Dispatch::Syslog->new(
@@ -358,8 +356,7 @@ sub flog_messages ($self, @rest) {
   return $self->_flog_messages($arg, \@rest);
 }
 
-sub log {
-  my ($self, @rest) = @_;
+sub log ($self, @rest) {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
 
   my $message;
@@ -394,9 +391,7 @@ C<log_fatal> and not C<fatal>>.
 
 =cut
 
-sub log_fatal {
-  my ($self, @rest) = @_;
-
+sub log_fatal ($self, @rest) {
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
 
   local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
@@ -416,9 +411,7 @@ C<log_debug> and not C<debug>>.
 
 =cut
 
-sub log_debug {
-  my ($self, @rest) = @_;
-
+sub log_debug ($self, @rest) {
   return unless $self->is_debug;
 
   my $arg = _HASH0($rest[0]) ? shift(@rest) : {}; # for future expansion
@@ -495,7 +488,7 @@ as the value to log.  That string will be quoted as described above, if needed.
 
 =cut
 
-sub _compute_proxy_ctx_kvstr_aref {
+sub _compute_proxy_ctx_kvstr_aref ($) {
   return [];
 }
 
@@ -508,9 +501,7 @@ sub fmt_event ($self, $type, $data) {
   return join q{ }, @$kv_aref;
 }
 
-sub log_event {
-  my ($self, $type, $data) = @_;
-
+sub log_event ($self, $type, $data) {
   return if $self->get_muted;
 
   my $message = $self->fmt_event($type, $data);
@@ -530,9 +521,7 @@ has its C<debug> property set to true.
 
 =cut
 
-sub log_debug_event {
-  my ($self, $type, $data) = @_;
-
+sub log_debug_event ($self, $type, $data) {
   return unless $self->get_debug;
 
   $self->log_event($type, $data);
@@ -547,9 +536,7 @@ C<log_debug>.
 
 =cut
 
-sub set_debug {
-  return($_[0]->{debug} = $_[1] ? 1 : 0);
-}
+sub set_debug ($self, $bool) { $self->{debug} = $bool ? 1 : 0 }
 
 =method get_debug
 
@@ -558,7 +545,7 @@ C<log_debug>.
 
 =cut
 
-sub get_debug { return $_[0]->{debug} }
+sub get_debug ($self) { return $self->{debug} }
 
 =method clear_debug
 
@@ -567,10 +554,10 @@ objects.  See L<Methods for Proxy Loggers|/METHODS FOR PROXY LOGGERS>, below.
 
 =cut
 
-sub clear_debug { }
+sub clear_debug ($) { }
 
-sub mute   { $_[0]{muted} = 1 }
-sub unmute { $_[0]{muted} = 0 }
+sub mute   ($self) { $self->{muted} = 1 }
+sub unmute ($self) { $self->{muted} = 0 }
 
 =method set_muted
 
@@ -581,8 +568,8 @@ C<log>.
 
 =cut
 
-sub set_muted {
-  return($_[0]->{muted} = $_[1] ? 1 : 0);
+sub set_muted ($self, $bool) {
+  return ($self->{muted} = $bool ? 1 : 0);
 }
 
 =method get_muted
@@ -592,7 +579,7 @@ C<log>.
 
 =cut
 
-sub get_muted { return $_[0]->{muted} }
+sub get_muted ($self) { return $self->{muted} }
 
 =method clear_muted
 
@@ -601,7 +588,7 @@ objects.  See L<Methods for Proxy Loggers|/METHODS FOR PROXY LOGGERS>, below.
 
 =cut
 
-sub clear_muted { }
+sub clear_muted ($) { }
 
 =method get_prefix
 
@@ -623,10 +610,10 @@ C<unset_prefix>, but this is deprecated.  See L<Logger Prefix|/LOGGER PREFIX>.
 
 =cut
 
-sub get_prefix   { return $_[0]->{prefix}  }
-sub set_prefix   { $_[0]->{prefix} = $_[1] }
-sub clear_prefix { $_[0]->unset_prefix     }
-sub unset_prefix { undef $_[0]->{prefix}   }
+sub get_prefix   ($self)          { return $self->{prefix}    }
+sub set_prefix   ($self, $prefix) { $self->{prefix} = $prefix }
+sub clear_prefix ($self)          { $self->unset_prefix       }
+sub unset_prefix ($self)          { undef $self->{prefix}     }
 
 =method ident
 
@@ -634,7 +621,7 @@ This method returns the logger's ident.
 
 =cut
 
-sub ident { $_[0]{ident} }
+sub ident ($self) { $self->{ident} }
 
 =method config_id
 
@@ -645,7 +632,7 @@ current logger will not throw an exception, and will simply do no thing.
 
 =cut
 
-sub config_id { $_[0]{config_id} }
+sub config_id ($self) { $self->{config_id} }
 
 =head1 METHODS FOR SUBCLASSING
 
@@ -656,7 +643,7 @@ messages.  By default, it just returns C<String::Flogger>
 
 =cut
 
-sub string_flogger { 'String::Flogger' }
+sub string_flogger ($) { 'String::Flogger' }
 
 =head2 env_prefix
 
@@ -671,7 +658,7 @@ variable is checked.
 
 =cut
 
-sub env_prefix { return; }
+sub env_prefix ($) { return; }
 
 =head2 env_value
 
@@ -683,9 +670,7 @@ C<DISPATCHOULI_DEBUG>.
 
 =cut
 
-sub env_value {
-  my ($self, $suffix) = @_;
-
+sub env_value ($self, $suffix) {
   my @path = grep { defined } ($self->env_prefix, 'DISPATCHOULI');
 
   for my $prefix (@path) {
@@ -728,8 +713,7 @@ C<\%arg> is optional.
 
 =cut
 
-sub new_tester {
-  my ($class, $arg) = @_;
+sub new_tester ($class, $arg = undef) {
   $arg ||= {};
 
   return $class->new({
@@ -751,11 +735,11 @@ logger).  If the logger is not logging C<to_self> this raises an exception.
 
 =cut
 
-sub events {
+sub events ($self) {
   Carp::confess "->events called on a logger not logging to self"
-    unless $_[0]->{events};
+    unless $self->{events};
 
-  return $_[0]->{events};
+  return $self->{events};
 }
 
 =head2 clear_events
@@ -765,11 +749,11 @@ memory.  If the logger is not logging C<to_self> this raises an exception.
 
 =cut
 
-sub clear_events {
+sub clear_events ($self) {
   Carp::confess "->events called on a logger not logging to self"
-    unless $_[0]->{events};
+    unless $self->{events};
 
-  @{ $_[0]->{events} } = ();
+  $self->{events}->@* = ();
   return;
 }
 
@@ -799,12 +783,11 @@ setting.  It can be changed or cleared later on the proxy.
 
 =cut
 
-sub proxy_class {
+sub proxy_class ($) {
   return 'Log::Dispatchouli::Proxy';
 }
 
-sub proxy {
-  my ($self, $arg) = @_;
+sub proxy ($self, $arg = undef) {
   $arg ||= {};
 
   my $proxy = $self->proxy_class->_new({
@@ -832,8 +815,8 @@ proxy loggers.)
 
 =cut
 
-sub parent { $_[0] }
-sub logger { $_[0] }
+sub parent ($self) { $self }
+sub logger ($self) { $self }
 
 =method dispatcher
 
@@ -842,7 +825,7 @@ you're looking for.  Move along.
 
 =cut
 
-sub dispatcher   { $_[0]->{dispatcher} }
+sub dispatcher ($self) { $self->{dispatcher} }
 
 =method stdio_dispatcher_class
 
@@ -852,7 +835,7 @@ used.  B<This feature may go away at any time.>
 
 =cut
 
-sub stdio_dispatcher_class {
+sub stdio_dispatcher_class ($self) {
   require Log::Dispatch::Screen;
   return 'Log::Dispatch::Screen';
 }
@@ -889,13 +872,13 @@ respectively.
 
 =cut
 
-sub is_debug { $_[0]->get_debug }
-sub is_info  { 1 }
-sub is_fatal { 1 }
+sub is_debug ($self) { $self->get_debug }
+sub is_info  ($) { 1 }
+sub is_fatal ($) { 1 }
 
-sub info  { shift()->log(@_); }
-sub fatal { shift()->log_fatal(@_); }
-sub debug { shift()->log_debug(@_); }
+sub info  ($self, @rest) { $self->log(@rest); }
+sub fatal ($self, @rest) { $self->log_fatal(@rest); }
+sub debug ($self, @rest) { $self->log_debug(@rest); }
 
 use overload
   '&{}'    => sub { my ($self) = @_; sub { $self->log(@_) } },
