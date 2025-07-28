@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.011     2025-07-28 11:43:33-04:00 America/New_York
         - [ BREAKING CHANGE ]
           This release converts all Logger methods to signatured-subs.  This
           should not really break anything, unless methods are being called
