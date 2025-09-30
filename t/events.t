@@ -162,13 +162,14 @@ subtest "very basic stuff" => sub {
   );
 
   event_logs_ok(
+    # Note that the ë at the end becomes UTF-8 encoded into octets.
     ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
-    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{200d} \\\\nothing ë"',
+    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{e2}\\x{80}\\x{8d} \\\\nothing ' . "\xc3\xab" . '"',
     'control characters and otherwise',
   );
 
   parse_event_ok(
-    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{200d} \\\\nothing ë"',
+    'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{e2}\\x{80}\\x{8d} \\\\nothing ' . "\xc3\xab" . '"',
     [
       event   => 'ctrlctl',
       string  => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë},
@@ -178,12 +179,12 @@ subtest "very basic stuff" => sub {
 
   event_logs_ok(
     spacey => [ string => qq{line \x{2028} spacer} ],
-    'event=spacey string="line \x{2028} spacer"',
+    'event=spacey string="line \x{e2}\x{80}\x{a8} spacer"',
     'non-control non-ascii vertical whitespace is also escaped',
   );
 
   parse_event_ok(
-    'event=spacey string="line \x{2028} spacer"',
+    'event=spacey string="line \x{e2}\x{80}\x{a8} spacer"',
     [
       event   => 'spacey',
       string  => qq{line \x{2028} spacer}
