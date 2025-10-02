@@ -162,6 +162,18 @@ subtest "very basic stuff" => sub {
   );
 
   event_logs_ok(
+    'has-tab' => { tabby => "\tx = 1;" },
+    'event=has-tab tabby="\\tx = 1;"',
+    "tabs become \\t",
+  );
+
+  parse_event_ok(
+    'event=has-tab tabby="\\tx = 1;"',
+    [ event => 'has-tab', tabby => "\tx = 1;" ],
+    "\\t becomes a tab",
+  );
+
+  event_logs_ok(
     # Note that the ë at the end becomes UTF-8 encoded into octets.
     ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
     'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{e2}\\x{80}\\x{8d} \\\\nothing ' . "\xc3\xab" . '"',

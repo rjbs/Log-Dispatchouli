@@ -52,6 +52,7 @@ sub _quote_string {
 
   $string =~ s{\\}{\\\\}g;
   $string =~ s{"}{\\"}g;
+  $string =~ s{\x09}{\\t}g;
   $string =~ s{\x0A}{\\n}g;
   $string =~ s{\x0D}{\\r}g;
   $string =~ s{([\pC\v])}{_escape_unprintable($1)}ge;
@@ -175,13 +176,14 @@ sub parse_event_string {
       my $qstring = $2;
 
       $qstring =~ s{
-        ( \\\\ | \\["nr] | (\\x)\{([[:xdigit:]]{1,5})\} )
+        ( \\\\ | \\["nrt] | (\\x)\{([[:xdigit:]]{2})\} )
       }
       {
           $1 eq "\\\\"        ? "\\"
         : $1 eq "\\\""        ? q{"}
         : $1 eq "\\n"         ? qq{\n}
         : $1 eq "\\r"         ? qq{\r}
+        : $1 eq "\\t"         ? qq{\t}
         : ($2//'') eq "\\x"   ? chr(hex("0x$3"))
         :                       $1
       }gex;
