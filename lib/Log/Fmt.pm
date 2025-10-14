@@ -112,7 +112,7 @@ part of the formatting process.
 # okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; graphic ASCII, less: \ " = DEL
 # key   = 1*(okchr)
 # value = key / quoted
-my $IDENT_RE = qr{[\x21\x23-\x3C\x3E-\x5b\x5d-\x7E]+};
+my $KEY_RE = qr{[\x21\x23-\x3C\x3E-\x5b\x5d-\x7E]+};
 
 sub _escape_unprintable {
   my ($chr) = @_;
@@ -199,7 +199,7 @@ sub _pairs_to_kvstr_aref {
     }
 
     my $str = "$key="
-            . ($value =~ /\A$IDENT_RE\z/
+            . ($value =~ /\A$KEY_RE\z/
                ? "$value"
                : _quote_string($value));
 
@@ -241,12 +241,12 @@ sub parse_event_string {
   my @result;
 
   HUNK: while (length $octets) {
-    if ($octets =~ s/\A($IDENT_RE)=($IDENT_RE)(?:\s+|\z)//) {
+    if ($octets =~ s/\A($KEY_RE)=($KEY_RE)(?:\s+|\z)//) {
       push @result, $1, $2;
       next HUNK;
     }
 
-    if ($octets =~ s/\A($IDENT_RE)="((\\\\|\\"|[^"])*?)"(?:\s+|\z)//) {
+    if ($octets =~ s/\A($KEY_RE)="((\\\\|\\"|[^"])*?)"(?:\s+|\z)//) {
       my $key = $1;
       my $qstring = $2;
 
