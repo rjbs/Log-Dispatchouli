@@ -174,6 +174,30 @@ subtest "very basic stuff" => sub {
   );
 
   event_logs_ok(
+    'has-eq' => { equals => "0=1" },
+    'event=has-eq equals="0=1"',
+    "including an = gets you quoted",
+  );
+
+  parse_event_ok(
+    'event=has-eq equals="0=1"',
+    [ event => 'has-eq', equals => "0=1" ],
+    "= in input is fine",
+  );
+
+  event_logs_ok(
+    'has-backslash' => { revsol => "foo\\bar" },
+    'event=has-backslash revsol="foo\\\\bar"',
+    "including a \\ gets you quoted",
+  );
+
+  parse_event_ok(
+    'event=has-backslash revsol="foo\\\\bar"',
+    [ event => 'has-backslash', revsol => "foo\\bar" ],
+    "\\ in input is fine",
+  );
+
+  event_logs_ok(
     # Note that the ë at the end becomes UTF-8 encoded into octets.
     ctrlctl => [ string => qq{NL \x0a CR \x0d "Q" ZWJ \x{200D} \\nothing ë}, ],
     'event=ctrlctl string="NL \\n CR \\r \\"Q\\" ZWJ \\x{e2}\\x{80}\\x{8d} \\\\nothing ' . "\xc3\xab" . '"',
