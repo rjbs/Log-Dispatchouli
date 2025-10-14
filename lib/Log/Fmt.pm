@@ -56,16 +56,24 @@ with a standard termal can show something like:
 
 To generate a C<quoted> from a Unicode string, for each codepoint:
 
-=for :list
+=begin :list
+
 * convert C<\> to C<\\>
 * convert C<"> to C<\">
 * convert a newline (U+000A) to C<\n>
 * convert a carriage return (U+000D) to C<\r>
 * convert a character tabulation (U+0009) to C<\t>
 * for any control character (by general category) or vertical newline:
-    * encode the character into a UTF-8 bytestring
-    * convert each byte in the bytestring into C<\x{...}> form
-    * use that sequence of C<\x{...}> codes in place of the replaced character
+
+=begin :list
+
+* encode the character into a UTF-8 bytestring
+* convert each byte in the bytestring into C<\x{...}> form
+* use that sequence of C<\x{...}> codes in place of the replaced character
+
+=end :list
+
+=end :list
 
 Finally, UTF-8 encode the entire string and wrap it in double qoutes.
 
