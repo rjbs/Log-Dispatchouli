@@ -17,7 +17,7 @@ methods.  It converts an arrayref of key/value pairs to a string that a human
 can scan tolerably well, and which a machine can parse about as well.  It can
 also do that tolerably-okay parsing for you.
 
-=head1 SPECIFICATIN
+=head1 SPECIFICATION
 
 =head2 The logfmt text format
 
