@@ -109,8 +109,10 @@ part of the formatting process.
 
 =cut
 
-# ASCII after SPACE but excluding = and "
-my $IDENT_RE = qr{[\x21\x23-\x3C\x3E-\x7E]+};
+# okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; graphic ASCII, less: \ " = DEL
+# key   = 1*(okchr)
+# value = key / quoted
+my $IDENT_RE = qr{[\x21\x23-\x3C\x3E-\x5b\x5d-\x7E]+};
 
 sub _escape_unprintable {
   my ($chr) = @_;
