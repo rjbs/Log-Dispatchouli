@@ -30,7 +30,7 @@ separated by a single space.
 
     event = pair *(WSP pair)
     pair  = key "=" value
-    okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; graphic ASCII, less: \ " = DEL
+    okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; VCHAR minus \ and " and =
     key   = 1*(okchr)
     value = key / quoted
 
