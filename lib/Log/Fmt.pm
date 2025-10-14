@@ -117,10 +117,10 @@ part of the formatting process.
 
 =cut
 
-# okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; graphic ASCII, less: \ " = DEL
+# okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; VCHAR minus \ and " and =
 # key   = 1*(okchr)
 # value = key / quoted
-my $KEY_RE = qr{[\x21\x23-\x3C\x3E-\x5b\x5d-\x7E]+};
+my $KEY_RE = qr{[\x21\x23-\x3c\x3e-\x5b\x5d-\x7e]+};
 
 sub _escape_unprintable {
   my ($chr) = @_;
