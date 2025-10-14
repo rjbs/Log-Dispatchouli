@@ -50,7 +50,7 @@ It is preferable to build quoted values from a Unicode string, because it's
 possible to know whether a given codepoint is a non-ASCII unsafe character,
 like C<LINE SEPARATOR>.  Safe non-ASCII characters can be directly UTF-8
 encoded, rather than quoted with C<\x{...}>.  In that way, viewing logfmt events
-with a standard termal can show something like:
+with a standard terminal can show something like:
 
     user.name="Jürgen"
 
