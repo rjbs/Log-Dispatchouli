@@ -17,6 +17,79 @@ methods.  It converts an arrayref of key/value pairs to a string that a human
 can scan tolerably well, and which a machine can parse about as well.  It can
 also do that tolerably-okay parsing for you.
 
+=head1 SPECIFICATIN
+
+=head2 The logfmt text format
+
+Although quite a few tools exist for managing C<logfmt>, there is no spec-like
+document for it.  Because you may require multiple implementations, a
+specification can be helpful.
+
+Every logfmt event is a sequence of pairs in the form C<key=value>.  Pairs are
+separated by a single space.
+
+    event = pair *(WSP pair)
+    pair  = key "=" value
+    okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; graphic ASCII, less: \ " = DEL
+    key   = 1*(okchr)
+    value = key / quoted
+
+    quoted = DQUOTE *( escaped / quoted-ok / okchr / eightbit ) DQUOTE
+    escaped         = escaped-special / escaped-hex
+    escaped-special = "\\" / "\n" / "\r" / "\t" / ("\" DQUOTE)
+    escaped-hex     = "\x{" 2HEXDIG "}" ; lowercase forms okay also
+    quoted-ok       = SP / "="
+    eightbit        = %x80-ff
+
+When formatting a value, if a value is already a valid C<key> token, use it
+without further quoting.
+
+=head2 Quoting a Unicode string
+
+It is preferable to build quoted values from a Unicode string, because it's
+possible to know whether a given codepoint is a non-ASCII unsafe character,
+like C<LINE SEPARATOR>.  Safe non-ASCII characters can be directly UTF-8
+encoded, rather than quoted with C<\x{...}>.  In that way, viewing logfmt events
+with a standard termal can show something like:
+
+    user.name="Jürgen"
+
+To generate a C<quoted> from a Unicode string, for each codepoint:
+
+=for :list
+* convert C<\> to C<\\>
+* convert C<"> to C<\">
+* convert a newline (U+000A) to C<\n>
+* convert a carriage return (U+000D) to C<\r>
+* convert a character tabulation (U+0009) to C<\t>
+* for any control character (by general category) or vertical newline:
+    * encode the character into a UTF-8 bytestring
+    * convert each byte in the bytestring into C<\x{...}> form
+    * use that sequence of C<\x{...}> codes in place of the replaced character
+
+Finally, UTF-8 encode the entire string and wrap it in double qoutes.
+
+B<This Perl implementation assumes that all string values to be encoded are
+character strings!>
+
+=head3 Quoting a bytestring
+
+Encoding a Unicode string is preferable, but may not be practical.  In those
+cases when you have only a byte sequence, apply these steps.
+
+For each byte (using ASCII conventions):
+
+=for :list
+* convert C<\> to C<\\>
+* convert C<"> to C<\">
+* convert a newline (C<%0a>) to C<\n>
+* convert a carriage return (C<%0d>) to C<\r>
+* convert a character tabulation (C<%x09>) to C<\t>
+* convert any control character (C<%x00-1f / %x7f>) to the C<\x{...}> form
+* convert any non-ASCII byte (C<%x80-ff>) to the C<\x{...}> form
+
+Finally, wrap the string in double quotes.
+
 =cut
 
 =method format_event_string
