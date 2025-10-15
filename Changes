@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+3.013     2025-10-15 10:12:50-04:00 America/New_York
+        - typo fixes and spec clarifications
+
 3.012     2025-10-14 12:39:48-04:00 America/New_York
         - [ BREAKING CHANGE (BARELY) ]
           Log::Fmt now includes a formal specification of the logfmt grammar we
