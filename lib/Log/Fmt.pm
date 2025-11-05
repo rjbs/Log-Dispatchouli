@@ -98,7 +98,17 @@ For each byte (using ASCII conventions):
 
 Finally, wrap the string in double quotes.
 
-=cut
+=head3 Special values
+
+There are no reserved or sentinel values for undefined values, null pointers,
+or the like.  Convention is to use a single identifier surrounded by tildes to
+indicate such a value.  For example, given a null pointer for the C<user.name>
+value, a system might log:
+
+    user.name=~null~
+
+If C<~null~> was a valid username, there would be ambiguity here.  The choice
+of exact sentinels is left to the implementing system.
 
 =method format_event_string
 
