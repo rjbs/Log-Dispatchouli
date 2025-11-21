@@ -501,15 +501,27 @@ sub fmt_event ($self, $type, $data) {
   return join q{ }, @$kv_aref;
 }
 
-sub log_event ($self, $type, $data) {
-  return if $self->get_muted;
+sub log_event ($self, @rest) {
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
 
-  my $message = $self->fmt_event($type, $data);
+  my ($type, $data) = @rest;
+  my $message;
 
-  $self->dispatcher->log(
-    level   => 'info',
-    message => $message,
-  );
+  if ($arg->{fatal} or ! $self->get_muted) {
+    try {
+      $message = $self->fmt_event($type, $data);
+
+      $self->dispatcher->log(
+        level   => $arg->{level} || 'info',
+        message => $message,
+      );
+    } catch {
+      $message = '(no event could be logged)' unless defined $message;
+      die $_ if $self->{fail_fatal};
+    };
+  }
+
+  Carp::croak $message if $arg->{fatal};
 
   return;
 }
@@ -525,6 +537,22 @@ sub log_debug_event ($self, $type, $data) {
   return unless $self->get_debug;
 
   $self->log_event($type, $data);
+}
+
+=method log_event_fatal
+
+This method is just like C<log_event>, but will throw the logged string as an
+exception after logging.
+
+=cut
+
+sub log_event_fatal ($self, @rest) {
+  my $arg = _HASH0($rest[0]) ? shift(@rest) : {};
+
+  local $arg->{level} = defined $arg->{level} ? $arg->{level} : 'error';
+  local $arg->{fatal} = defined $arg->{fatal} ? $arg->{fatal} : 1;
+
+  $self->log_event($arg, @rest);
 }
 
 =method set_debug
