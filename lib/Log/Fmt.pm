@@ -10,6 +10,18 @@ use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(refaddr);
 use String::Flogger ();
 
+BEGIN {
+  my $ok = eval { require Log::Fmt::XS; };
+  if ($ok && ! $ENV{LOG_FMT_NO_XS}) {
+    no strict 'refs';
+    *_pairs_to_kvstr_aref = \&Log::Fmt::XS::_pairs_to_kvstr_aref;
+  } else {
+    no strict 'refs';
+    sub _pairs_to_kvstr_aref_PP;
+    *_pairs_to_kvstr_aref = \&_pairs_to_kvstr_aref_PP;
+  }
+}
+
 =head1 OVERVIEW
 
 This library primarily exists to service L<Log::Dispatchouli>'s C<log_event>
@@ -157,7 +169,7 @@ sub _quote_string {
 
 sub string_flogger { 'String::Flogger' }
 
-sub _pairs_to_kvstr_aref {
+sub _pairs_to_kvstr_aref_PP {
   my ($self, $aref, $seen, $prefix) = @_;
 
   $seen //= {};

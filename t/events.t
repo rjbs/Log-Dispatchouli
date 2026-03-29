@@ -5,6 +5,8 @@ use experimental 'postderef'; # Not dangerous.  Is accepted without changed.
 
 use utf8;
 
+BEGIN { $ENV{LOG_FMT_NO_XS} = 1 }
+
 use JSON::MaybeXS;
 use Log::Dispatchouli;
 use Test::More 0.88;
