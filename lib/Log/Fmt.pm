@@ -142,6 +142,9 @@ part of the formatting process.
 # okchr = %x21 / %x23-3c / %x3e-5b / %x5d-7e ; VCHAR minus \ and " and =
 # key   = 1*(okchr)
 # value = key / quoted
+#
+# Remember to update the tr/// expression in _pairs_to_kvstr_aref_PP if this
+# changes!
 my $KEY_RE = qr{[\x21\x23-\x3c\x3e-\x5b\x5d-\x7e]+};
 
 sub _escape_unprintable {
@@ -179,7 +182,7 @@ sub _pairs_to_kvstr_aref_PP {
   KEY: for (my $i = 0; $i < @$aref; $i += 2) {
     # replace non-ident-safe chars with ?
     my $key = length $aref->[$i] ? "$aref->[$i]" : '~';
-    $key =~ tr/\x21\x23-\x3C\x3E-\x7E/?/c;
+    $key =~ tr{\x21\x23-\x3c\x3e-\x5b\x5d-\x7e}{?}c;
 
     # If the prefix is "" you can end up with a pair like ".foo=1" which is
     # weird but probably best.  And that means you could end up with

@@ -193,6 +193,12 @@ subtest "very basic stuff" => sub {
     "including a \\ gets you quoted",
   );
 
+  event_logs_ok(
+    'key-has-backslash' => { 'a\\b' => "foo" },
+    'event=key-has-backslash a?b=foo',
+    "backslash in a key becomes question mark",
+  );
+
   parse_event_ok(
     'event=has-backslash revsol="foo\\\\bar"',
     [ event => 'has-backslash', revsol => "foo\\bar" ],
