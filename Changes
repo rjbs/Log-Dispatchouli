@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - when present, use Log::Fmt::XS for emitting logfmt
 
 3.013     2025-10-15 10:12:50-04:00 America/New_York
         - typo fixes and spec clarifications
