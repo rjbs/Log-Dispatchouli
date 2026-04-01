@@ -240,6 +240,40 @@ sub test_logfmt_implementation ($self, $logfmt_package) {
       );
     };
 
+    subtest "parsing junk input" => sub {
+      parse_event_ok(
+        'junkword',
+        [ junk => 'junkword' ],
+        "bare word with no = becomes junk",
+      );
+
+      parse_event_ok(
+        'foo=bar bareword foo=baz',
+        [ foo => 'bar', junk => 'bareword', foo => 'baz' ],
+        "junk among valid pairs is captured with key 'junk'",
+      );
+
+      parse_event_ok(
+        'key=',
+        [ junk => 'key=' ],
+        "key= with no value is junk",
+      );
+
+      parse_event_ok(
+        'key="unclosed',
+        [ junk => 'key="unclosed' ],
+        "unclosed quoted string is junk",
+      );
+    };
+
+    subtest "parsing empty quoted value" => sub {
+      parse_event_ok(
+        'key=""',
+        [ key => '' ],
+        "empty quoted string parses to empty string",
+      );
+    };
+
     subtest "very basic proxy operation" => sub {
       my ($logger, $proxy1, $proxy2) = logger_trio();
 
