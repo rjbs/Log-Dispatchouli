@@ -10,18 +10,6 @@ use Params::Util qw(_ARRAY0 _HASH0 _CODELIKE);
 use Scalar::Util qw(refaddr);
 use String::Flogger ();
 
-BEGIN {
-  my $ok = eval { require Log::Fmt::XS; };
-  if ($ok && ! $ENV{LOG_FMT_NO_XS}) {
-    no strict 'refs';
-    *_pairs_to_kvstr_aref = \&Log::Fmt::XS::_pairs_to_kvstr_aref;
-  } else {
-    no strict 'refs';
-    sub _pairs_to_kvstr_aref_PP;
-    *_pairs_to_kvstr_aref = \&_pairs_to_kvstr_aref_PP;
-  }
-}
-
 =head1 OVERVIEW
 
 This library primarily exists to service L<Log::Dispatchouli>'s C<log_event>
@@ -143,7 +131,7 @@ part of the formatting process.
 # key   = 1*(okchr)
 # value = key / quoted
 #
-# Remember to update the tr/// expression in _pairs_to_kvstr_aref_PP if this
+# Remember to update the tr/// expression in _pairs_to_kvstr_aref if this
 # changes!
 my $KEY_RE = qr{[\x21\x23-\x3c\x3e-\x5b\x5d-\x7e]+};
 
@@ -172,7 +160,7 @@ sub _quote_string {
 
 sub string_flogger { 'String::Flogger' }
 
-sub _pairs_to_kvstr_aref_PP {
+sub _pairs_to_kvstr_aref {
   my ($self, $aref, $seen, $prefix) = @_;
 
   $seen //= {};

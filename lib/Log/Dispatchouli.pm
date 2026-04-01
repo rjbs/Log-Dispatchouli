@@ -492,8 +492,19 @@ sub _compute_proxy_ctx_kvstr_aref ($) {
   return [];
 }
 
+my $LOG_FMT_PACKAGE;
+sub _log_fmt_package { $LOG_FMT_PACKAGE }
+
+BEGIN {
+  $LOG_FMT_PACKAGE = 'Log::Fmt';
+  my $ok = eval { require Log::Fmt::XS; };
+  if ($ok && ! $ENV{LOG_FMT_NO_XS}) {
+    $LOG_FMT_PACKAGE = 'Log::Fmt::WithXS';
+  }
+}
+
 sub fmt_event ($self, $type, $data) {
-  my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
+  my $kv_aref = $self->_log_fmt_package->_pairs_to_kvstr_aref([
     event => $type,
     (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
   ]);

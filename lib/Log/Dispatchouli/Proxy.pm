@@ -146,7 +146,7 @@ sub _compute_proxy_ctx_kvstr_aref ($self) {
     my @kvstr = $self->parent->_compute_proxy_ctx_kvstr_aref->@*;
 
     if ($self->{proxy_ctx}) {
-      my $our_kv = Log::Fmt->_pairs_to_kvstr_aref($self->{proxy_ctx});
+      my $our_kv = $self->logger->_log_fmt_package->_pairs_to_kvstr_aref($self->{proxy_ctx});
       push @kvstr, @$our_kv;
     }
 
@@ -155,7 +155,7 @@ sub _compute_proxy_ctx_kvstr_aref ($self) {
 }
 
 sub fmt_event ($self, $type, $data) {
-  my $kv_aref = Log::Fmt->_pairs_to_kvstr_aref([
+  my $kv_aref = $self->logger->_log_fmt_package->_pairs_to_kvstr_aref([
     event => $type,
     (_ARRAY0($data) ? @$data : $data->%{ sort keys %$data })
   ]);
