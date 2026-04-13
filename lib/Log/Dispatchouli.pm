@@ -499,7 +499,7 @@ BEGIN {
   $LOG_FMT_PACKAGE = 'Log::Fmt';
   my $ok = eval { require Log::Fmt::XS; };
   if ($ok && ! $ENV{LOG_FMT_NO_XS}) {
-    $LOG_FMT_PACKAGE = 'Log::Fmt::WithXS';
+    $LOG_FMT_PACKAGE = 'Log::Fmt::XS';
   }
 }
 

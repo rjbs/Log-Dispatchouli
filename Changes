@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+        - fix auto-using of Log::Fmt::XS, which was straight up broken
 
 3.100     2026-04-01 10:35:56-04:00 America/New_York
         - when present, use Log::Fmt::XS for emitting logfmt
