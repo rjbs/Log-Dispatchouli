@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.101     2026-04-13 13:31:24-04:00 America/New_York
         - fix auto-using of Log::Fmt::XS, which was straight up broken
 
 3.100     2026-04-01 10:35:56-04:00 America/New_York
